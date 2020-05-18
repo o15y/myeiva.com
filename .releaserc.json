@@ -84,6 +84,7 @@
     "@semantic-release/github",
     [
       "@semantic-release/git",
+      "@semantic-release/npm",
       {
         "message": ":bookmark: v${nextRelease.version} [skip ci]\n\nhttps://github.com/staart/ui/releases/tag/${nextRelease.gitTag}"
       }
