@@ -20,7 +20,7 @@ jobs:
       - name: Build TypeScript
         run: npm run generate
       - name: Build GitHub Pages
-        run: maxheld83/ghpages@v0.2.1
+        uses: maxheld83/ghpages@v0.2.1
         env:
           BUILD_DIR: "dist/"
           GH_PAT:  ${{ secrets.GH_PAT }}
