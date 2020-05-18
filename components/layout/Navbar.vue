@@ -53,6 +53,11 @@
         <b-navbar-item role="button" @click="logout">Logout</b-navbar-item>
       </b-navbar-dropdown>
     </template>
+    <template slot="end" v-else>
+      <div class="columns is-vcentered has-text-grey">
+        <div>Your personal assistant for scheduling</div>
+      </div>
+    </template>
   </b-navbar>
 </template>
 

@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="container">
       <nav class="column bottom-nav">
-        <span>&copy; {{ year }} Staart</span>
+        <span>&copy; {{ year }} EIVA</span>
         <a href="#">Home</a>
         <a href="#">Pricing</a>
         <a href="#">Docs</a>
