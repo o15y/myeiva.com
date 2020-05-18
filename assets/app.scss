@@ -1,46 +1,46 @@
 @import "~bulma/sass/utilities/_all";
 @import "overwrites.scss";
 
-$primary: darkgreen;
+$primary: #8c1d74;
 $primary-invert: findColorInvert($primary);
 
 $colors: (
   "white": (
     $white,
-    $black
+    $black,
   ),
   "black": (
     $black,
-    $white
+    $white,
   ),
   "light": (
     $light,
-    $light-invert
+    $light-invert,
   ),
   "dark": (
     $dark,
-    $dark-invert
+    $dark-invert,
   ),
   "primary": (
     $primary,
-    $primary-invert
+    $primary-invert,
   ),
   "info": (
     $info,
-    $info-invert
+    $info-invert,
   ),
   "success": (
     $success,
-    $success-invert
+    $success-invert,
   ),
   "warning": (
     $warning,
-    $warning-invert
+    $warning-invert,
   ),
   "danger": (
     $danger,
-    $danger-invert
-  )
+    $danger-invert,
+  ),
 );
 
 $link: $primary;
