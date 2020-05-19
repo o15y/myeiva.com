@@ -28,15 +28,24 @@
               membership.organization.username
             )
           "
-        >{{ membership.organization.name }}</b-navbar-item>
+          >{{ membership.organization.assistantName }}</b-navbar-item
+        >
         <b-navbar-item
           class="has-text-weight-bold"
           tag="nuxt-link"
           :to="`/users/${user.details.username}/teams`"
-        >Create a new team</b-navbar-item>
+          >Create a new assistant</b-navbar-item
+        >
       </b-navbar-dropdown>
-      <b-navbar-item v-else-if="isAuthenticated" tag="nuxt-link" to="/">Dashboard</b-navbar-item>
-      <b-navbar-item tag="nuxt-link" to="/admin" v-if="user.details.role === 'SUDO'">Admin</b-navbar-item>
+      <b-navbar-item v-else-if="isAuthenticated" tag="nuxt-link" to="/"
+        >Dashboard</b-navbar-item
+      >
+      <b-navbar-item
+        tag="nuxt-link"
+        to="/admin"
+        v-if="user.details.role === 'SUDO'"
+        >Admin</b-navbar-item
+      >
     </template>
     <template slot="end" v-if="user.details.username">
       <b-navbar-dropdown :right="true" hoverable boxed>
@@ -49,7 +58,8 @@
         <b-navbar-item
           tag="nuxt-link"
           :to="`/users/${user.details.username}/profile`"
-        >Account settings</b-navbar-item>
+          >Account settings</b-navbar-item
+        >
         <b-navbar-item role="button" @click="logout">Logout</b-navbar-item>
       </b-navbar-dropdown>
     </template>
@@ -62,52 +72,52 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { User } from "../../store/auth";
-import { Vue, Component, Prop } from "vue-property-decorator";
+  import { mapGetters } from "vuex";
+  import { User } from "../../store/auth";
+  import { Vue, Component, Prop } from "vue-property-decorator";
 
-@Component({
-  computed: mapGetters({
-    isAuthenticated: "auth/isAuthenticated",
-    user: "auth/user"
+  @Component({
+    computed: mapGetters({
+      isAuthenticated: "auth/isAuthenticated",
+      user: "auth/user",
+    }),
   })
-})
-export default class Navbar extends Vue {
-  isAuthenticated!: boolean;
-  user!: User;
+  export default class Navbar extends Vue {
+    isAuthenticated!: boolean;
+    user!: User;
 
-  get userMemberships() {
-    return this.user.memberships?.data || [];
-  }
+    get userMemberships() {
+      return this.user.memberships?.data || [];
+    }
 
-  get teamsLabel() {
-    const team = this.userMemberships.find(
-      (i: any) => i.organization.username === this.$route.params.username
-    );
-    if (team) return team.organization.name;
-    return "Change team";
-  }
+    get teamsLabel() {
+      const team = this.userMemberships.find(
+        (i: any) => i.organization.username === this.$route.params.username
+      );
+      if (team) return team.organization.assistantName;
+      return "Change team";
+    }
 
-  async logout() {
-    await this.$store.dispatch("auth/logout");
-    this.$router.push("/");
+    async logout() {
+      await this.$store.dispatch("auth/logout");
+      this.$router.push("/");
+    }
   }
-}
 </script>
 
 <style scoped>
-.image img {
-  margin-right: 1rem;
-  width: 1.5rem;
-  transform: scale(1.5);
-}
+  .image img {
+    margin-right: 1rem;
+    width: 1.5rem;
+    transform: scale(1.5);
+  }
 </style>
 
 <style>
-.is-light {
-  background: none;
-}
-.container {
-  max-width: 1000px;
-}
+  .is-light {
+    background: none;
+  }
+  .container {
+    max-width: 1000px;
+  }
 </style>

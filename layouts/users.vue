@@ -35,71 +35,71 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import Navbar from "@/components/layout/Navbar.vue";
-import Footer from "@/components/layout/Footer.vue";
+  import Vue from "vue";
+  import Component from "vue-class-component";
+  import Navbar from "@/components/layout/Navbar.vue";
+  import Footer from "@/components/layout/Footer.vue";
 
-@Component({
-  components: { Navbar, Footer },
-})
-export default class Default extends Vue {
-  items = [
-    {
-      label: "Profile",
-      icon: "face-profile-woman",
-      to: "/profile",
-    },
-    {
-      label: "Teams",
-      icon: "account-group",
-      to: "/teams",
-    },
-    {
-      label: "Emails",
-      icon: "email",
-      to: "/emails",
-    },
-    {
-      label: "Passwords & 2FA",
-      icon: "security",
-      to: "/passwords",
-    },
-    {
-      label: "Sessions",
-      icon: "login",
-      to: "/sessions",
-    },
-    {
-      label: "Access tokens",
-      icon: "code-braces",
-      to: "/access-tokens",
-    },
-    {
-      label: "Data and privacy",
-      icon: "database",
-      to: "/data",
-    },
-  ];
-}
+  @Component({
+    components: { Navbar, Footer },
+  })
+  export default class Default extends Vue {
+    items = [
+      {
+        label: "Profile",
+        icon: "face-profile-woman",
+        to: "/profile",
+      },
+      {
+        label: "Assistants",
+        icon: "account-group",
+        to: "/teams",
+      },
+      {
+        label: "Emails",
+        icon: "email",
+        to: "/emails",
+      },
+      {
+        label: "Passwords & 2FA",
+        icon: "security",
+        to: "/passwords",
+      },
+      {
+        label: "Sessions",
+        icon: "login",
+        to: "/sessions",
+      },
+      {
+        label: "Access tokens",
+        icon: "code-braces",
+        to: "/access-tokens",
+      },
+      {
+        label: "Data and privacy",
+        icon: "database",
+        to: "/data",
+      },
+    ];
+  }
 </script>
 
 <style scoped>
-.container {
-  position: relative;
-  z-index: 31;
-  max-width: 1000px;
-}
-main {
-  transform: translateY(-1.25rem);
-}
-aside {
-  margin-top: 2.5rem;
-}
+  .container {
+    position: relative;
+    z-index: 31;
+    max-width: 1000px;
+  }
+  main {
+    transform: translateY(-1.25rem);
+  }
+  aside {
+    margin-top: 2.5rem;
+  }
 </style>
 
 <style>
-.is-transparent {
-  background-color: transparent;
-}
+  .is-transparent {
+    background-color: transparent;
+  }
 </style>
