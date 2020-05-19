@@ -1,6 +1,20 @@
 <template>
   <div>
-    <h1 class="title is-5">👋 Hi, {{guestName}}!</h1>
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: center">
+      <figure class="image avatar is-64x64" v-if="user.profilePicture || user.name">
+        <img
+          class="is-rounded"
+          :src="user.profilePicture || `https://ui-avatars.com/api/?name=${user.name}&background=3498db&color=fff`"
+        />
+      </figure>
+      <figure class="image avatar is-64x64">
+        <img
+          class="is-rounded"
+          :src="guestPicture || `https://ui-avatars.com/api/?name=${guestName}&background=e74c3c&color=fff`"
+        />
+      </figure>
+    </div>
+    <h1 class="title is-5 has-text-centered">👋 Hi, {{guestName}}!</h1>
     <div class="content">
       <p>Schedule your {{duration}}-minute appointment with {{user.name}}.</p>
       <form @submit.prevent="save">
@@ -153,4 +167,11 @@ export default class Confirm extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.avatar img {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+.avatar {
+  margin: 0 -10px;
+}
+</style>
