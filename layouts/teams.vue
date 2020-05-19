@@ -49,117 +49,117 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import Navbar from "@/components/layout/Navbar.vue";
-import Footer from "@/components/layout/Footer.vue";
+  import Vue from "vue";
+  import Component from "vue-class-component";
+  import Navbar from "@/components/layout/Navbar.vue";
+  import Footer from "@/components/layout/Footer.vue";
 
-@Component({
-  components: { Navbar, Footer },
-})
-export default class Default extends Vue {
-  items = [
-    {
-      label: "Dashboard",
-      icon: "shape",
-      to: "",
-    },
-    {
-      label: "Settings",
-      icon: "cog",
-      to: "/settings",
-      items: [
-        {
-          label: "Team settings",
-          icon: "account-cog",
-          to: "/settings/team",
-        },
-        {
-          label: "Domains",
-          icon: "web",
-          to: "/settings/domains",
-        },
-      ],
-    },
-    {
-      label: "Team members",
-      icon: "account-group",
-      to: "/members",
-    },
-    {
-      label: "Billing",
-      icon: "credit-card-multiple",
-      to: "/billing",
-      items: [
-        {
-          label: "Customer details",
-          icon: "office-building",
-          to: "/billing",
-        },
-        {
-          label: "Subscription",
-          icon: "history",
-          to: "/billing/subscription",
-        },
-        {
-          label: "Payment methods",
-          icon: "credit-card",
-          to: "/billing/sources",
-        },
-        {
-          label: "Invoices",
-          icon: "book-multiple",
-          to: "/billing/invoices",
-        },
-        {
-          label: "Credits & history",
-          icon: "cash-plus",
-          to: "/billing/transactions",
-        },
-      ],
-    },
-    {
-      label: "Developers",
-      icon: "code-braces",
-      to: "/developers",
-      items: [
-        {
-          label: "API keys",
-          icon: "api",
-          to: "/developers/api-keys",
-        },
-        {
-          label: "Logs",
-          icon: "chart-areaspline-variant",
-          to: "/developers/api-logs",
-        },
-        {
-          label: "Webhooks",
-          icon: "webhook",
-          to: "/developers/webhooks",
-        },
-      ],
-    },
-    {
-      label: "Data and security",
-      icon: "database",
-      to: "/security",
-    },
-  ];
-}
+  @Component({
+    components: { Navbar, Footer },
+  })
+  export default class Default extends Vue {
+    items = [
+      {
+        label: "Meetings",
+        icon: "calendar",
+        to: "",
+      },
+      {
+        label: "Settings",
+        icon: "cog",
+        to: "/settings",
+        items: [
+          {
+            label: "Team settings",
+            icon: "account-cog",
+            to: "/settings/team",
+          },
+          {
+            label: "Domains",
+            icon: "web",
+            to: "/settings/domains",
+          },
+        ],
+      },
+      {
+        label: "Team members",
+        icon: "account-group",
+        to: "/members",
+      },
+      // {
+      //   label: "Billing",
+      //   icon: "credit-card-multiple",
+      //   to: "/billing",
+      //   items: [
+      //     {
+      //       label: "Customer details",
+      //       icon: "office-building",
+      //       to: "/billing",
+      //     },
+      //     {
+      //       label: "Subscription",
+      //       icon: "history",
+      //       to: "/billing/subscription",
+      //     },
+      //     {
+      //       label: "Payment methods",
+      //       icon: "credit-card",
+      //       to: "/billing/sources",
+      //     },
+      //     {
+      //       label: "Invoices",
+      //       icon: "book-multiple",
+      //       to: "/billing/invoices",
+      //     },
+      //     {
+      //       label: "Credits & history",
+      //       icon: "cash-plus",
+      //       to: "/billing/transactions",
+      //     },
+      //   ],
+      // },
+      {
+        label: "Developers",
+        icon: "code-braces",
+        to: "/developers",
+        items: [
+          {
+            label: "API keys",
+            icon: "api",
+            to: "/developers/api-keys",
+          },
+          {
+            label: "Logs",
+            icon: "chart-areaspline-variant",
+            to: "/developers/api-logs",
+          },
+          {
+            label: "Webhooks",
+            icon: "webhook",
+            to: "/developers/webhooks",
+          },
+        ],
+      },
+      {
+        label: "Data and security",
+        icon: "database",
+        to: "/security",
+      },
+    ];
+  }
 </script>
 
 <style scoped>
-.container {
-  position: relative;
-  margin-top: 2rem;
-  z-index: 31;
-  max-width: 1000px;
-}
+  .container {
+    position: relative;
+    margin-top: 2rem;
+    z-index: 31;
+    max-width: 1000px;
+  }
 </style>
 
 <style>
-.is-transparent {
-  background-color: transparent;
-}
+  .is-transparent {
+    background-color: transparent;
+  }
 </style>
