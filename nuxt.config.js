@@ -15,7 +15,13 @@ export default {
       },
     ],
     link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-    script: [{ src: "https://js.stripe.com/v3/" }],
+    script: [
+      { src: "https://js.stripe.com/v3/" },
+      {
+        src: "https://platform.oswaldlabs.com/v1/agastya/load/eiva.js",
+        async: true,
+      },
+    ],
   },
   /*
    ** Customize the progress-bar color
@@ -47,10 +53,9 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL:
-      process.env.NODE_ENV === "production"
-        ? "https://staart.dev.oswaldlabs.com/v1"
-        : "http://localhost:7007/v1",
+    baseURL: process.env.NODE_ENV === "production"
+      ? "https://staart.dev.oswaldlabs.com/v1"
+      : "http://localhost:7007/v1",
   },
   router: {
     middleware: "token",
