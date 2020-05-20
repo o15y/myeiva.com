@@ -89,7 +89,7 @@
           </b-field>
         </div>
         <div class="column">
-          <b-field :label="newLocationLabel">
+          <b-field :label="newLocationLabel" :message="newLocationMessage">
             <b-input
               :icon="
                 newLocationType === 'IN_PERSON'
@@ -106,7 +106,7 @@
         </div>
       </div>
       <b-button type="is-primary" native-type="submit" :loading="loadingAdd">
-        Invite location
+        Add location
       </b-button>
     </form>
   </div>
@@ -192,6 +192,7 @@
               `/organizations/${this.$route.params.username}/locations/${id}`
             );
           } catch (error) {}
+          this.location = { data: [] };
           return this.get();
         },
       });
@@ -209,6 +210,36 @@
       if (this.newLocationType === "PHONE_CALL") return "Phone number";
       if (this.newLocationType === "VIDEO_CALL") return "URL or details";
       return "Details";
+    }
+
+    get newLocationMessage() {
+      if (this.newLocationType === "PHONE_CALL")
+        return "Phone number with country code";
+      if (
+        this.newLocationType === "VIDEO_CALL" &&
+        ["Jitsi Meet", "Zoom", "Google Meet", "Whereby"].includes(
+          this.newLocationService
+        )
+      )
+        return "Link to join the call";
+      if (
+        this.newLocationType === "VIDEO_CALL" &&
+        [
+          "Messenger",
+          "Skype",
+          "Telegram",
+          "WhatsApp",
+          "Viber",
+          "Houseparty",
+          "Signal",
+          "LINE",
+          "WeChat",
+        ].includes(this.newLocationService)
+      )
+        return "Phone number or username to call";
+      if (this.newLocationType === "VIDEO_CALL")
+        return "Details to join call (like a link or username)";
+      return;
     }
   }
 </script>
