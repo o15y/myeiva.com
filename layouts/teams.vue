@@ -65,6 +65,11 @@
         to: "",
       },
       {
+        label: "Locations",
+        icon: "map-marker-multiple",
+        to: "/locations",
+      },
+      {
         label: "Settings",
         icon: "cog",
         to: "/settings",
@@ -73,6 +78,11 @@
             label: "Assistant settings",
             icon: "calendar-account",
             to: "/settings/assistant",
+          },
+          {
+            label: "Scheduling settings",
+            icon: "calendar",
+            to: "/settings/scheduling",
           },
           {
             label: "Team settings",
