@@ -70,6 +70,11 @@
         to: "/settings",
         items: [
           {
+            label: "Assistant settings",
+            icon: "calendar-account",
+            to: "/settings/assistant",
+          },
+          {
             label: "Team settings",
             icon: "account-cog",
             to: "/settings/team",
