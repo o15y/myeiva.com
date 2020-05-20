@@ -1,5 +1,18 @@
 <template>
   <div>
+    <div
+      class="card card-content"
+      style="margin-bottom: 1.5rem"
+      v-if="hasAccount"
+    >
+      <h2 class="title is-5">Already created an account?</h2>
+      <p style="margin: -0.5rem 0 1rem 0">
+        If you've already created an account, you can login.
+      </p>
+      <nuxt-link to="/auth/login" class="button is-primary">
+        Login to your account &rarr;
+      </nuxt-link>
+    </div>
     <h1 class="title is-4">Register</h1>
     <div v-if="completed">
       <img alt="" src="/illustrations/PlantDoodle.svg" />
@@ -46,7 +59,7 @@
         <b-field v-show="!hasPasswordless" label="Password">
           <b-input v-model="password" type="password" password-reveal />
         </b-field>
-        <b-field>
+        <!-- <b-field>
           <b-checkbox v-model="hasPasswordless">
             <span>Use passwordless login</span>
             <b-tooltip label="We'll send you a magic link over email">
@@ -58,7 +71,7 @@
           <b-checkbox v-model="hasInviteCode">
             I have an invitation code
           </b-checkbox>
-        </b-field>
+        </b-field> -->
         <b-field v-show="hasInviteCode" label="Invitation code">
           <b-input v-model="invitedByUser" type="text" />
         </b-field>
@@ -71,73 +84,78 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+  import { Vue, Component } from "vue-property-decorator";
 
-@Component({
-  middleware: "unauthenticated",
-  layout: "auth",
-})
-export default class Register extends Vue {
-  name = "";
-  email = "anandchowdhary@gmail.com";
-  password = "";
-  invitedByUser = "";
+  @Component({
+    middleware: "unauthenticated",
+    layout: "auth",
+  })
+  export default class Register extends Vue {
+    name = "";
+    email = "";
+    password = "";
+    invitedByUser = "";
 
-  completed = false;
-  loading = false;
-  hasPasswordless = false;
-  hasInviteCode = false;
-  resendTime = -2;
-  resendToken = "";
-  timer: any = undefined;
+    completed = false;
+    loading = false;
+    hasPasswordless = false;
+    hasInviteCode = false;
+    resendTime = -2;
+    hasAccount = false;
+    resendToken = "";
+    timer: any = undefined;
 
-  mounted() {
-    this.timer = window.setInterval(() => {
-      if (this.resendTime > 0) this.resendTime -= 1;
-    }, 1000);
-  }
+    mounted() {
+      try {
+        if (localStorage.getItem("hasAccount")) this.hasAccount = true;
+      } catch (error) {}
+      this.timer = window.setInterval(() => {
+        if (this.resendTime > 0) this.resendTime -= 1;
+      }, 1000);
+    }
 
-  async register() {
-    if (this.loading) return;
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.post("/auth/register", {
-        name: this.name,
-        email: this.email,
-        password: this.password ? this.password : undefined,
-        invitedByUser: this.invitedByUser ? this.invitedByUser : undefined,
-      });
-      this.name = "";
+    async register() {
+      if (this.loading) return;
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.post("/auth/register", {
+          name: this.name,
+          email: this.email,
+          password: this.password ? this.password : undefined,
+          invitedByUser: this.invitedByUser ? this.invitedByUser : undefined,
+        });
+        this.name = "";
+        this.password = "";
+        this.invitedByUser = "";
+        this.completed = true;
+        this.resendToken = data.resendToken;
+        if (this.resendToken) this.resendTime = 120;
+        localStorage.setItem("hasAccount", "1");
+      } catch (error) {}
+      this.loading = false;
       this.password = "";
-      this.invitedByUser = "";
-      this.completed = true;
-      this.resendToken = data.resendToken;
-      if (this.resendToken) this.resendTime = 120;
-    } catch (error) {}
-    this.loading = false;
-    this.password = "";
-  }
+    }
 
-  async resend() {
-    try {
-      await this.$axios.post("/auth/resend-verification", {
-        email: this.email,
-      });
-    } catch (error) {}
-    this.resendTime = -1;
-  }
+    async resend() {
+      try {
+        await this.$axios.post("/auth/resend-verification", {
+          email: this.email,
+        });
+      } catch (error) {}
+      this.resendTime = -1;
+    }
 
-  get emailDomain() {
-    try {
-      return this.email.split("@")[1];
-    } catch (error) {
-      return "";
+    get emailDomain() {
+      try {
+        return this.email.split("@")[1];
+      } catch (error) {
+        return "";
+      }
+    }
+
+    beforeDestroy() {
+      window.clearInterval(this.timer);
+      this.timer = undefined;
     }
   }
-
-  beforeDestroy() {
-    window.clearInterval(this.timer);
-    this.timer = undefined;
-  }
-}
 </script>

@@ -64,9 +64,13 @@
       </b-navbar-dropdown>
     </template>
     <template slot="end" v-else>
-      <div class="columns is-vcentered has-text-grey">
+      <!-- <div class="columns is-vcentered has-text-grey">
         <div>Your personal assistant for scheduling</div>
-      </div>
+      </div> -->
+      <b-navbar-item tag="nuxt-link" to="/auth/login">Login</b-navbar-item>
+      <b-navbar-item tag="nuxt-link" to="/auth/register"
+        >Register</b-navbar-item
+      >
     </template>
   </b-navbar>
 </template>
