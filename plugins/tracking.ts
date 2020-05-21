@@ -1,4 +1,5 @@
 import { elementToObject } from "~/util/element-to-object";
+import axios from "axios";
 
 const UAParser = require("ua-parser-js");
 const lastNChars = (N: number, str: string) => str.substr(str.length - N);
@@ -30,7 +31,7 @@ const clean = (obj: any) => {
   return obj;
 };
 
-export default ({ $axios }: { $axios: any }) => {
+export default () => {
   if (process.client) {
     const track = async (event: string, data?: any) => {
       let timezone: string | undefined = undefined;
@@ -63,12 +64,29 @@ export default ({ $axios }: { $axios: any }) => {
         port: window.location.port,
         protocol: window.location.protocol,
         search: window.location.search,
+        referrer: document.referrer,
+        language: window.navigator.language,
+        availableResolution: `${window.screen.availWidth}x${window.screen.availHeight}`,
+        nativeResolution: `${window.screen.width *
+          window.devicePixelRatio}x${window.screen.height *
+          window.devicePixelRatio}`,
+        absoluteResolution: `${window.screen.width}x${window.screen.height}`,
         timezone,
         localDate: new Date().toLocaleString("en-us"),
         anonymousLocalId,
         anonymousSessionId,
       });
-      console.log("Tracking", event, body);
+      axios
+        .post(
+          `${
+            process.env.NODE_ENV === "production"
+              ? "https://staart.dev.oswaldlabs.com/v1"
+              : "http://localhost:7007/v1"
+          }/api/track/${event}`,
+          body
+        )
+        .then(() => {})
+        .catch(() => {});
     };
     let currentUrl = window.location.href;
     track("pageview");
@@ -84,7 +102,9 @@ export default ({ $axios }: { $axios: any }) => {
       if (!event.target) return;
       const target = elementToObject(event.target as Element);
       track("click", {
-        target,
+        targetSelector: target?.selector,
+        targetTagName: target?.tagName,
+        targetContent: target?.textContent,
         altKey: event.altKey,
         clientX: event.clientX,
         clientY: event.clientY,
