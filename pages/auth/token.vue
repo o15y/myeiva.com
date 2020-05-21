@@ -65,7 +65,6 @@
           ? this.$route.query.subject
           : "";
       if (!token || !this.subject) return (this.state = "error");
-      return (this.state = "success");
 
       try {
         const { data }: { data: any } = await this.$axios.post(
