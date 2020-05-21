@@ -271,172 +271,173 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import axios from "axios";
-import ct from "countries-and-timezones";
+  import { Vue, Component, Watch } from "vue-property-decorator";
+  import axios from "axios";
+  import ct from "countries-and-timezones";
 
-const countries = ct.getAllCountries();
+  const countries = ct.getAllCountries();
 
-@Component({
-  middleware: "authenticated",
-})
-export default class OnboardingUser extends Vue {
-  userName = "";
-  userUsername = "";
-  userCountryCode = "us";
-  userPrefersColorScheme = "NO_PREFERENCE";
-  userPrefersReducedMotion = "NO_PREFERENCE";
-  userGender = "UNKNOWN";
-  userTimezone = "America/Los_Angeles";
+  @Component({
+    middleware: "authenticated",
+  })
+  export default class OnboardingUser extends Vue {
+    userName = "";
+    userUsername = "";
+    userCountryCode = "us";
+    userPrefersColorScheme = "NO_PREFERENCE";
+    userPrefersReducedMotion = "NO_PREFERENCE";
+    userGender = "UNKNOWN";
+    userTimezone = "America/Los_Angeles";
 
-  value = 0;
-  loading = false;
-  countrySearchQuery = "United States";
-  filteredTimezonesArray = ct.getTimezonesForCountry("US").map((i) => i.name);
-  securityPreset = 1;
+    value = 0;
+    loading = false;
+    countrySearchQuery = "United States";
+    filteredTimezonesArray = ct.getTimezonesForCountry("US").map((i) => i.name);
+    securityPreset = 1;
 
-  created() {
-    this.userName = this.$store.state.auth.user.details.name;
-    this.userUsername = this.$store.state.auth.user.details.username;
-    this.userCountryCode = this.$store.state.auth.user.details.countryCode;
-  }
-
-  async mounted() {
-    try {
-      const { data } = await axios.get<{
-        timezone?: string;
-        country?: string;
-      }>("https://ipinfo.io/json");
-      this.userCountryCode = (data.country ?? "US").toLocaleLowerCase();
-      this.userTimezone = data.timezone ?? "America/Los_Angeles";
-      if (data.country) {
-        const country = ct.getCountry(data.country.toLocaleLowerCase());
-        if (country) this.countrySearchQuery = country.name;
-      }
-    } catch (error) {}
-  }
-
-  @Watch("countrySearchQuery")
-  onCountrySearchQueryChanged(value: string) {
-    const filteredCountries = Object.entries(countries).filter(
-      (i) => i[1].name === value
-    );
-    if (filteredCountries.length)
-      this.userCountryCode = filteredCountries[0][0].toLocaleLowerCase();
-    this.filteredTimezonesArray = (
-      ct.getTimezonesForCountry(this.userCountryCode.toLocaleUpperCase()) || []
-    ).map((i) => i.name);
-    if (
-      !this.filteredTimezonesArray.includes(this.userTimezone) &&
-      this.filteredTimezonesArray.length
-    ) {
-      this.userTimezone = this.filteredTimezonesArray[0];
+    created() {
+      this.userName = this.$store.state.auth.user.details.name;
+      this.userUsername = this.$store.state.auth.user.details.username;
+      this.userCountryCode = this.$store.state.auth.user.details.countryCode;
     }
-  }
 
-  @Watch("selectedCountryCode")
-  onCountryCodeChanged(value: string) {
-    console.log(value);
-    const countryCodes = Object.entries(countries).filter(
-      (i) => i[1].name === value
-    );
-    if (countryCodes.length)
-      this.userCountryCode = countryCodes[0][0].toLocaleLowerCase();
-  }
-
-  get filteredCountriesArray() {
-    return Object.values(countries)
-      .filter((i) =>
-        i.name
-          .toLocaleLowerCase()
-          .includes(this.countrySearchQuery.toLocaleLowerCase())
-      )
-      .map((i) => i.name);
-  }
-
-  get teamName() {
-    return `${(this.userName || "").split(" ")[0]}'s Team`;
-  }
-
-  async goToNextStep() {
-    const checkLocationOnLogin = this.securityPreset === 2;
-    const notificationEmails =
-      this.securityPreset === 0
-        ? "ACCOUNT"
-        : this.securityPreset === 1
-        ? "UPDATES"
-        : "PROMOTIONS";
-    console.log({ checkLocationOnLogin, notificationEmails });
-    console.log({
-      name: this.userName,
-      username: this.userUsername,
-      countryCode: this.userCountryCode ? this.userCountryCode : undefined,
-      timezone: this.userTimezone,
-      gender: this.userGender,
-      prefersColorScheme: this.userPrefersColorScheme,
-      prefersReducedMotion: this.userPrefersReducedMotion
-        ? "REDUCE"
-        : "NO_PREFERENCE",
-    });
-    if (this.value < 3) {
-      this.loading = true;
-      if (this.value === 2) {
-        try {
-          const { data } = await this.$axios.put("/organizations", {
-            name: this.teamName || this.userName,
-          });
-          const memberships = (await this.$axios.get("/users/me/memberships"))
-            .data;
-          this.$store.commit("auth/setUserDetails", { memberships });
-          return this.$router.push(`/teams/${data.added.username}`);
-        } catch (error) {
-          return this.$router.push("/");
+    async mounted() {
+      try {
+        const { data } = await axios.get<{
+          timezone?: string;
+          country?: string;
+        }>("https://ipinfo.io/json");
+        this.userCountryCode = (data.country ?? "US").toLocaleLowerCase();
+        this.userTimezone = data.timezone ?? "America/Los_Angeles";
+        if (data.country) {
+          const country = ct.getCountry(data.country);
+          if (country) this.countrySearchQuery = country.name;
         }
-      } else {
-        try {
-          await this.$axios.patch(
-            "/users/me",
-            this.value === 0
-              ? {
-                  name: this.userName,
-                  username: this.userUsername,
-                  countryCode: this.userCountryCode
-                    ? this.userCountryCode
-                    : undefined,
-                  timezone: this.userTimezone,
-                  gender: this.userGender,
-                  prefersColorScheme: this.userPrefersColorScheme,
-                  prefersReducedMotion: this.userPrefersReducedMotion
-                    ? "REDUCE"
-                    : "NO_PREFERENCE",
-                }
-              : { checkLocationOnLogin, notificationEmails }
-          );
-        } catch (error) {}
+      } catch (error) {}
+    }
+
+    @Watch("countrySearchQuery")
+    onCountrySearchQueryChanged(value: string) {
+      const filteredCountries = Object.entries(countries).filter(
+        (i) => i[1].name === value
+      );
+      if (filteredCountries.length)
+        this.userCountryCode = filteredCountries[0][0].toLocaleLowerCase();
+      this.filteredTimezonesArray = (
+        ct.getTimezonesForCountry(this.userCountryCode.toLocaleUpperCase()) ||
+        []
+      ).map((i) => i.name);
+      if (
+        !this.filteredTimezonesArray.includes(this.userTimezone) &&
+        this.filteredTimezonesArray.length
+      ) {
+        this.userTimezone = this.filteredTimezonesArray[0];
       }
-      this.loading = false;
-      this.value += 1;
+    }
+
+    @Watch("selectedCountryCode")
+    onCountryCodeChanged(value: string) {
+      console.log(value);
+      const countryCodes = Object.entries(countries).filter(
+        (i) => i[1].name === value
+      );
+      if (countryCodes.length)
+        this.userCountryCode = countryCodes[0][0].toLocaleLowerCase();
+    }
+
+    get filteredCountriesArray() {
+      return Object.values(countries)
+        .filter((i) =>
+          i.name
+            .toLocaleLowerCase()
+            .includes(this.countrySearchQuery.toLocaleLowerCase())
+        )
+        .map((i) => i.name);
+    }
+
+    get teamName() {
+      return `${(this.userName || "").split(" ")[0]}'s Team`;
+    }
+
+    async goToNextStep() {
+      const checkLocationOnLogin = this.securityPreset === 2;
+      const notificationEmails =
+        this.securityPreset === 0
+          ? "ACCOUNT"
+          : this.securityPreset === 1
+          ? "UPDATES"
+          : "PROMOTIONS";
+      console.log({ checkLocationOnLogin, notificationEmails });
+      console.log({
+        name: this.userName,
+        username: this.userUsername,
+        countryCode: this.userCountryCode ? this.userCountryCode : undefined,
+        timezone: this.userTimezone,
+        gender: this.userGender,
+        prefersColorScheme: this.userPrefersColorScheme,
+        prefersReducedMotion: this.userPrefersReducedMotion
+          ? "REDUCE"
+          : "NO_PREFERENCE",
+      });
+      if (this.value < 3) {
+        this.loading = true;
+        if (this.value === 2) {
+          try {
+            const { data } = await this.$axios.put("/organizations", {
+              name: this.teamName || this.userName,
+            });
+            const memberships = (await this.$axios.get("/users/me/memberships"))
+              .data;
+            this.$store.commit("auth/setUserDetails", { memberships });
+            return this.$router.push(`/teams/${data.added.username}`);
+          } catch (error) {
+            return this.$router.push("/");
+          }
+        } else {
+          try {
+            await this.$axios.patch(
+              "/users/me",
+              this.value === 0
+                ? {
+                    name: this.userName,
+                    username: this.userUsername,
+                    countryCode: this.userCountryCode
+                      ? this.userCountryCode
+                      : undefined,
+                    timezone: this.userTimezone,
+                    gender: this.userGender,
+                    prefersColorScheme: this.userPrefersColorScheme,
+                    prefersReducedMotion: this.userPrefersReducedMotion
+                      ? "REDUCE"
+                      : "NO_PREFERENCE",
+                  }
+                : { checkLocationOnLogin, notificationEmails }
+            );
+          } catch (error) {}
+        }
+        this.loading = false;
+        this.value += 1;
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-.container {
-  margin: 2.5vw auto 5vw auto;
-  max-width: 600px;
-}
-h1 {
-  margin-top: 2.5vw;
-}
-li {
-  list-style-type: circle;
-  margin-left: 1.75rem;
-}
+  .container {
+    margin: 2.5vw auto 5vw auto;
+    max-width: 600px;
+  }
+  h1 {
+    margin-top: 2.5vw;
+  }
+  li {
+    list-style-type: circle;
+    margin-left: 1.75rem;
+  }
 </style>
 
 <style>
-.security-preset .b-slider-tick-label {
-  margin-top: 1rem;
-}
+  .security-preset .b-slider-tick-label {
+    margin-top: 1rem;
+  }
 </style>
