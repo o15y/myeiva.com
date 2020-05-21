@@ -1,20 +1,27 @@
 <template>
   <div v-if="state === 'loading'">
     <h1 class="title is-4">Loading...</h1>
-    <div class="content"></div>
+    <b-loading :active="true" />
   </div>
   <div v-else-if="state === 'success'">
+    <b-icon
+      icon="check-circle"
+      size="is-large"
+      type="is-success"
+      style="margin-bottom: 1rem"
+    />
     <h1 v-if="subject === 'email-verify'" class="title is-4">Email verified</h1>
     <h1 v-else class="title is-4">Success</h1>
     <div class="content">
       <p v-if="subject === 'email-verify'">
-        Your email was successfully verified.
+        Your email was successfully verified. You can now log in to your
+        account.
       </p>
       <b-button v-if="isAuthenticated" tag="nuxt-link" to="/" type="is-primary">
         Go to dashboard &rarr;
       </b-button>
       <b-button v-else tag="nuxt-link" to="/auth/login" type="is-primary">
-        Go to login &rarr;
+        Login to your account &rarr;
       </b-button>
     </div>
   </div>
@@ -25,51 +32,52 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
-import { mapGetters } from "vuex";
+  import { Vue, Component } from "vue-property-decorator";
+  import { mapGetters } from "vuex";
 
-@Component({
-  middleware: "unauthenticated",
-  layout: "auth",
-  computed: mapGetters({
-    isAuthenticated: "auth/isAuthenticated",
-  }),
-})
-export default class Login extends Vue {
-  state = "loading";
-  subject = "";
-  isAuthenticated!: boolean;
+  @Component({
+    middleware: "unauthenticated",
+    layout: "auth",
+    computed: mapGetters({
+      isAuthenticated: "auth/isAuthenticated",
+    }),
+  })
+  export default class Login extends Vue {
+    state = "loading";
+    subject = "";
+    isAuthenticated!: boolean;
 
-  get tokenEndpoint() {
-    switch (this.$route.query.subject) {
-      case "email-verify":
-        return "/auth/verify-email";
-      case "approve-location":
-        return "/auth/approve-location";
-      default:
-        return "/auth/verify-token";
+    get tokenEndpoint() {
+      switch (this.$route.query.subject) {
+        case "email-verify":
+          return "/auth/verify-email";
+        case "approve-location":
+          return "/auth/approve-location";
+        default:
+          return "/auth/verify-token";
+      }
+    }
+
+    async mounted() {
+      const token = this.$route.query.token;
+      this.subject =
+        typeof this.$route.query.subject === "string"
+          ? this.$route.query.subject
+          : "";
+      if (!token || !this.subject) return (this.state = "error");
+      return (this.state = "success");
+
+      try {
+        const { data }: { data: any } = await this.$axios.post(
+          this.tokenEndpoint,
+          {
+            token,
+          }
+        );
+        if (this.subject === "password-reset")
+          return this.$router.replace(`/auth/recover?token=${token}`);
+        this.state = "success";
+      } catch (error) {}
     }
   }
-
-  async mounted() {
-    const token = this.$route.query.token;
-    this.subject =
-      typeof this.$route.query.subject === "string"
-        ? this.$route.query.subject
-        : "";
-    if (!token || !this.subject) return (this.state = "error");
-
-    try {
-      const { data }: { data: any } = await this.$axios.post(
-        this.tokenEndpoint,
-        {
-          token,
-        }
-      );
-      if (this.subject === "password-reset")
-        return this.$router.replace(`/auth/recover?token=${token}`);
-      this.state = "success";
-    } catch (error) {}
-  }
-}
 </script>

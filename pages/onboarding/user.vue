@@ -109,32 +109,6 @@
               >I prefer reduced motion</b-checkbox
             >
           </b-field>
-          <div style="margin-bottom: 0.5rem; font-weight: bold;">
-            Webapp color scheme
-          </div>
-          <b-field>
-            <b-radio
-              name="radioColorScheme"
-              native-value="NO_PREFERENCE"
-              v-model="userPrefersColorScheme"
-            >
-              Use system settings
-            </b-radio>
-            <b-radio
-              name="radioColorScheme"
-              native-value="LIGHT"
-              v-model="userPrefersColorScheme"
-            >
-              Light theme
-            </b-radio>
-            <b-radio
-              name="radioColorScheme"
-              native-value="DARK"
-              v-model="userPrefersColorScheme"
-            >
-              Dark theme
-            </b-radio>
-          </b-field>
           <div class="buttons" style="margin-top: 1.5rem">
             <b-button
               type="is-primary"
@@ -208,19 +182,6 @@
               </ul>
             </div>
           </div>
-          <h2 class="is-size-4" style="margin-bottom: 0.5rem">
-            Two-factor authentication
-          </h2>
-          <p>
-            2FA adds an additional layer of protection in your account. You'll
-            need to have a TOTP app like Google Authenticator or a password
-            manager like 1Password to use 2FA.
-          </p>
-          <div class="buttons" style="margin-top: 1rem">
-            <b-button type="is-success" size="is-medium" :loading="loading"
-              >Enable 2FA</b-button
-            >
-          </div>
           <b-button
             type="is-primary"
             native-type="submit"
@@ -230,40 +191,21 @@
           >
         </form>
       </b-step-item>
-      <b-step-item label="Team" :clickable="true">
-        <h1 class="title has-text-centered">Do you have a team?</h1>
-        <form @submit.prevent="goToNextStep" class="columns has-text-centered">
-          <div class="column">
-            <div class="is-size-1">🏢</div>
-            <h2 class="is-size-4" style="margin-bottom: 0.5rem">
-              Yes, I have a team
-            </h2>
-            <p style="margin-bottom: 1rem">
-              You can invite your team members in the next step.
-            </p>
-            <b-field label="Team name">
-              <b-input v-model="teamName" size="is-medium" />
-            </b-field>
-            <b-button
-              type="is-primary"
-              native-type="submit"
-              size="is-medium"
-              :loading="loading"
-              >Setup team account</b-button
-            >
-          </div>
-          <div class="column">
-            <div class="is-size-1">👩‍🚀</div>
-            <h2 class="is-size-4" style="margin-bottom: 0.5rem">
-              No, I'm flying solo
-            </h2>
-            <p style="margin-bottom: 1rem">
-              You can still add team members later as you grow.
-            </p>
-            <b-button native-type="submit" size="is-medium" :loading="loading"
-              >Setup individual account</b-button
-            >
-          </div>
+      <b-step-item label="Assistant" :clickable="true">
+        <h1 class="title has-text-centered">Setup your assistant</h1>
+        <form @submit.prevent="goToNextStep" class="has-text-centered">
+          <div class="is-size-1">🏢</div>
+          <b-field label="Assistant name">
+            <b-input v-model="teamName" size="is-medium" />
+          </b-field>
+          <b-button
+            type="is-primary"
+            native-type="submit"
+            size="is-medium"
+            :loading="loading"
+          >
+            Setup assistant
+          </b-button>
         </form>
       </b-step-item>
     </b-steps>
@@ -288,6 +230,7 @@
     userPrefersReducedMotion = "NO_PREFERENCE";
     userGender = "UNKNOWN";
     userTimezone = "America/Los_Angeles";
+    teamName = "Ara Isaacson (AI)";
 
     value = 0;
     loading = false;
@@ -355,10 +298,6 @@
         .map((i) => i.name);
     }
 
-    get teamName() {
-      return `${(this.userName || "").split(" ")[0]}'s Team`;
-    }
-
     async goToNextStep() {
       const checkLocationOnLogin = this.securityPreset === 2;
       const notificationEmails =
@@ -384,7 +323,8 @@
         if (this.value === 2) {
           try {
             const { data } = await this.$axios.put("/organizations", {
-              name: this.teamName || this.userName,
+              name: this.userName,
+              assistantName: this.teamName,
             });
             const memberships = (await this.$axios.get("/users/me/memberships"))
               .data;
