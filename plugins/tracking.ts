@@ -76,6 +76,8 @@ export default () => {
         anonymousLocalId,
         anonymousSessionId,
       });
+      if (window.location.hostname === "localhost")
+        return console.log("Tracking", event, body);
       axios
         .post(
           `${
