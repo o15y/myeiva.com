@@ -80,7 +80,7 @@ export default () => {
         .post(
           `${
             process.env.NODE_ENV === "production"
-              ? "https://staart.dev.oswaldlabs.com/v1"
+              ? "https://eiva-api.o15y.com/v1"
               : "http://localhost:7007/v1"
           }/api/track/${event}`,
           body
