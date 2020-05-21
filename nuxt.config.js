@@ -34,7 +34,11 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ["~/plugins/axios.ts", "~/plugins/vuex-persist.ts"],
+  plugins: [
+    "~/plugins/axios.ts",
+    "~/plugins/vuex-persist.ts",
+    "~/plugins/tracking.ts",
+  ],
   /*
    ** Nuxt.js dev-modules
    */
@@ -53,9 +57,10 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.NODE_ENV === "production"
-      ? "https://staart.dev.oswaldlabs.com/v1"
-      : "http://localhost:7007/v1",
+    baseURL:
+      process.env.NODE_ENV === "production"
+        ? "https://staart.dev.oswaldlabs.com/v1"
+        : "http://localhost:7007/v1",
   },
   router: {
     middleware: "token",
