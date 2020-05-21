@@ -1,5 +1,20 @@
 <template>
   <div>
+    <v-tour name="myTour" :steps="steps"></v-tour>
+    <div v-if="!loading && !meetings.data.length" class="has-text-centered">
+      <img
+        alt=""
+        src="/illustrations/PlantDoodle.svg"
+        style="max-height: 20vh"
+      />
+      <h2 class="title is-5" style="margin-top: 1rem">
+        No meetings yet.
+      </h2>
+      <p>
+        As soon as you ask your assistant to schedule a meeting, it will show up
+        here.
+      </p>
+    </div>
     <div v-for="(meeting, i) in meetings.data" :key="`m${i}${meeting.id}`">
       <nuxt-link
         :to="`/teams/${$route.params.username}/meetings/${meeting.id}`"
@@ -73,8 +88,26 @@
   export default class TeamsHome extends Vue {
     meetings: any = { data: [] };
 
+    $tours: any;
     loading = false;
     loadingMore = false;
+    steps = [
+      {
+        target: ".navbar-brand img",
+        header: {
+          title: "Welcome to your dashboard",
+        },
+        content: "We'll do a quick tour so you can get started",
+      },
+      {
+        target: ".menu-list li:nth-child(1) a",
+        placement: "right",
+        header: {
+          title: "Welcome to your dashboard",
+        },
+        content: "We'll do a quick tour so you can get started",
+      },
+    ];
 
     async mounted() {
       return this.get();
@@ -106,6 +139,10 @@
         );
         this.meetings.hasMore = data.hasMore;
         this.meetings = data;
+      } catch (error) {}
+      try {
+        console.log(this.$tours);
+        if (this.$tours["myTour"]) this.$tours["myTour"].start();
       } catch (error) {}
       this.loading = false;
     }

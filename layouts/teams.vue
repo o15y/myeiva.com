@@ -97,6 +97,11 @@
         ],
       },
       {
+        label: "How to use",
+        icon: "help-circle",
+        to: "/how-to-use",
+      },
+      {
         label: "Team members",
         icon: "account-group",
         to: "/members",
