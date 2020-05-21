@@ -1,3 +1,5 @@
+import { elementToObject } from "~/util/element-to-object";
+
 const UAParser = require("ua-parser-js");
 const lastNChars = (N: number, str: string) => str.substr(str.length - N);
 
@@ -22,11 +24,8 @@ if (typeof sessionStorage.getItem("anonymousSessionId") === "string") {
 
 const clean = (obj: any) => {
   Object.keys(obj).forEach((key: string) => {
-    if (!obj[key]) {
+    if (obj[key] === "" || obj[key] === null || obj[key] === undefined)
       delete obj[key];
-    } else {
-      obj[key] = String(obj[key]);
-    }
   });
   return obj;
 };
@@ -80,5 +79,27 @@ export default ({ $axios }: { $axios: any }) => {
         currentUrl = newUrl;
       }
     }, 1000);
+    if (!document.body) return;
+    document.body.addEventListener("click", (event) => {
+      if (!event.target) return;
+      const target = elementToObject(event.target as Element);
+      track("click", {
+        target,
+        altKey: event.altKey,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        movementX: event.movementX,
+        movementY: event.movementY,
+        offsetX: event.offsetX,
+        offsetY: event.offsetY,
+        pageX: event.pageX,
+        pageY: event.pageY,
+        screenX: event.screenX,
+        screenY: event.screenY,
+        shiftKey: event.shiftKey,
+      });
+    });
   }
 };
