@@ -1,4 +1,3 @@
-import Vue from "vue";
 import { NuxtAxiosInstance } from "@nuxtjs/axios";
 import { AxiosRequestConfig } from "axios";
 import decode from "jwt-decode";
