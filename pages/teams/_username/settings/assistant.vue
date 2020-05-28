@@ -17,6 +17,16 @@
       <b-field label="Signature">
         <b-input type="textarea" v-model="team.assistantSignature" required />
       </b-field>
+      <b-field>
+        <b-checkbox v-model="team.unsubscribeLink">
+          Add an unsubscribe link in the signature of every email
+        </b-checkbox>
+      </b-field>
+      <b-field>
+        <b-checkbox v-model="team.readReceipts">
+          Track read receipts for outgoing emails
+        </b-checkbox>
+      </b-field>
       <div style="margin-top: 1rem">
         <b-button type="is-primary" native-type="submit" :loading="loadingSave">
           Update assistant settings
