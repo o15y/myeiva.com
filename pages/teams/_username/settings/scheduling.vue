@@ -65,7 +65,29 @@
       >
         <b-input type="text" v-model="team.schedulingPadding" required />
       </b-field>
-      <h2 class="is-size-5" style="margin-bottom: 1rem">
+      <h2 class="is-size-5" style="margin: 1rem 0">
+        Calendar connection
+      </h2>
+      <p>
+        You <strong>do not</strong> have a calendar connected to your account.
+        Connect your calendar using an online service or enter a custom URL
+        below:
+      </p>
+      <div style="margin: 1rem 0">
+        <b-button icon-left="google" type="is-info">
+          <span>Google Calendar</span>
+        </b-button>
+        <b-button icon-left="microsoft" type="is-info">
+          <span>Microsoft Outlook</span>
+        </b-button>
+        <b-button icon-left="apple" type="is-info">
+          <span>Apple Calendar</span>
+        </b-button>
+      </div>
+      <b-field label="Custom calendar URL">
+        <b-input type="text" v-model="team.schedulingPadding" required />
+      </b-field>
+      <h2 class="is-size-5" style="margin: 1rem 0 ">
         Default appointment details
       </h2>
       <b-field label="Meeting duration">
