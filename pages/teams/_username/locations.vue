@@ -174,7 +174,7 @@
     newLocationService = "Jitsi Meet";
 
     async mounted() {
-      tour.start();
+      if (!localStorage.getItem("tour-finished")) tour.start();
       return this.get();
     }
 

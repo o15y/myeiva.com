@@ -132,7 +132,7 @@
     loadingMore = false;
 
     async mounted() {
-      tour.start();
+      if (!localStorage.getItem("tour-finished")) tour.start();
       return this.get();
     }
 

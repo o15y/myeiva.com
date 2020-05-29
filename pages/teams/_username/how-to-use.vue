@@ -86,7 +86,7 @@
   })
   export default class TeamsHowToUse extends Vue {
     mounted() {
-      tour.start();
+      if (!localStorage.getItem("tour-finished")) tour.start();
     }
   }
 </script>

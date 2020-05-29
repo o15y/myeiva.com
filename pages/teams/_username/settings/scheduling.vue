@@ -205,7 +205,7 @@
     }
 
     async mounted() {
-      tour.start();
+      if (!localStorage.getItem("tour-finished")) tour.start();
     }
 
     beforeDestroy() {
