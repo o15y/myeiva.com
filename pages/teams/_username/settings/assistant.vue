@@ -27,6 +27,30 @@
           Track read receipts for outgoing emails
         </b-checkbox>
       </b-field>
+      <b-field>
+        <b-checkbox v-model="team.emailConfirmation">
+          Send me an email confirmation when sending emails to guests
+        </b-checkbox>
+      </b-field>
+      <b-field>
+        <b-checkbox v-model="team.showPoweredByAra">
+          Add a "Powered by EIVA" link at the end of every email
+        </b-checkbox>
+      </b-field>
+      <b-field
+        label="Email language"
+        message="Your assistant can understand English and Dutch"
+      >
+        <b-select
+          placeholder="Select a language"
+          v-model="team.emailLanguage"
+          expanded
+        >
+          <option value="detect">Automatic (detect language)</option>
+          <option value="en">English</option>
+          <option value="nl">Nederlands</option>
+        </b-select>
+      </b-field>
       <div style="margin-top: 1rem">
         <b-button type="is-primary" native-type="submit" :loading="loadingSave">
           Update assistant settings
