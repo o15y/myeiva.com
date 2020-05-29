@@ -79,6 +79,28 @@
 
 <script lang="ts">
   import { Vue, Component, Watch } from "vue-property-decorator";
+  import Shepherd from "shepherd.js";
+  const tour = new Shepherd.Tour({
+    defaultStepOptions: {
+      classes: "shadow-md bg-purple-dark",
+      scrollTo: true,
+    },
+  });
+  tour.addStep({
+    id: "example-step",
+    text:
+      "This step is attached to the bottom of the <code>.example-css-selector</code> element.",
+    attachTo: {
+      element: ".card",
+      on: "bottom",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
 
   @Component({
     middleware: "authenticated",
@@ -90,6 +112,7 @@
     loadingMore = false;
 
     async mounted() {
+      tour.start();
       return this.get();
     }
 

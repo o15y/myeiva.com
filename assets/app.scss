@@ -1,5 +1,6 @@
 @import "~bulma/sass/utilities/_all";
 @import "overwrites.scss";
+@import "external.scss";
 
 $primary: #8c1d74;
 $primary-invert: findColorInvert($primary);
