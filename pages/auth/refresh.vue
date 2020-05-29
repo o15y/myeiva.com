@@ -28,7 +28,6 @@
     state = "loading";
 
     async mounted() {
-      return;
       try {
         const newToken: string = await this.$store.dispatch("auth/refresh");
         this.$axios.setHeader("Authorization", newToken);
