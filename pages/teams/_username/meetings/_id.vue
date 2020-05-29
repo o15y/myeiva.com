@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b-loading :active="loading" />
     <h1 class="is-size-4" style="margin-bottom: 1rem" v-if="guestName">
       Meeting with {{ guestName }}
     </h1>
@@ -46,7 +47,6 @@
       v-for="(guest, i) in JSON.parse(meeting.guests || '[]') || []"
       :key="`g${i}`"
     >
-      {{ guest }}
       <table class="table">
         <tbody>
           <tr>
@@ -58,72 +58,131 @@
             <td>{{ guest.address }}</td>
           </tr>
           <tr v-if="guest.person && guest.person.location">
-            <td>location</td>
+            <td>Location</td>
             <td>{{ guest.person.location }}</td>
           </tr>
           <tr v-if="guest.person && guest.person.bio">
-            <td>bio</td>
+            <td>About</td>
             <td>{{ guest.person.bio }}</td>
           </tr>
           <tr v-if="guest.person && guest.person.timezone">
-            <td>timezone</td>
+            <td>Timezone</td>
             <td>{{ guest.person.timezone }}</td>
           </tr>
           <tr v-if="guest.person && guest.person.site">
-            <td>site</td>
+            <td>Website</td>
             <td>{{ guest.person.site }}</td>
           </tr>
           <tr v-if="guest.person && guest.person.employment">
-            <td>employment</td>
+            <td>Employment</td>
             <td>
               {{ guest.person.employment.title }},
               {{ guest.person.employment.name }}
             </td>
           </tr>
-          <tr
-            v-if="
-              guest.person &&
-                guest.person.facebook &&
-                guest.person.facebook.handle
-            "
-          >
-            <td>facebook</td>
-            <td>{{ guest.person.facebook.handle }}</td>
+          <tr v-if="guest.person">
+            <td>Profiles</td>
+            <td>
+              <a
+                target="_blank"
+                :href="
+                  `https://www.facebook.com/${guest.person.facebook.handle}`
+                "
+                v-if="guest.person.facebook && guest.person.facebook.handle"
+              >
+                <b-icon icon="facebook" />
+              </a>
+              <a
+                target="_blank"
+                :href="`https://linkedin.com/${guest.person.linkedin.handle}`"
+                v-if="guest.person.linkedin && guest.person.linkedin.handle"
+              >
+                <b-icon icon="linkedin" />
+              </a>
+              <a
+                target="_blank"
+                :href="`https://github.com/${guest.person.github.handle}`"
+                v-if="guest.person.github && guest.person.github.handle"
+              >
+                <b-icon icon="github" />
+              </a>
+              <a
+                target="_blank"
+                :href="`https://twitter.com/${guest.person.twitter.handle}`"
+                v-if="guest.person.twitter && guest.person.twitter.handle"
+              >
+                <b-icon icon="twitter" />
+              </a>
+            </td>
           </tr>
-          <tr
-            v-if="
-              guest.person && guest.person.github && guest.person.github.handle
-            "
-          >
-            <td>github</td>
-            <td>{{ guest.person.github.handle }}</td>
+        </tbody>
+      </table>
+      <h3 v-if="guest.company" class="is-size-6" style="margin: 1rem 0">
+        Organization
+      </h3>
+      <table v-if="guest.company" class="table">
+        <tbody>
+          <tr v-if="guest.company.name">
+            <td>Name</td>
+            <td>{{ guest.company.name }}</td>
           </tr>
-          <tr
-            v-if="
-              guest.person &&
-                guest.person.twitter &&
-                guest.person.twitter.handle
-            "
-          >
-            <td>twitter</td>
-            <td>{{ guest.person.twitter.handle }}</td>
+          <tr v-if="guest.company.description">
+            <td>About</td>
+            <td>{{ guest.company.description }}</td>
           </tr>
-          <tr
-            v-if="
-              guest.person &&
-                guest.person.linkedin &&
-                guest.person.linkedin.handle
-            "
-          >
-            <td>linkedin</td>
-            <td>{{ guest.person.linkedin.handle }}</td>
+          <tr v-if="guest.company.domain">
+            <td>Website</td>
+            <td>{{ guest.company.domain }}</td>
+          </tr>
+          <tr v-if="guest.company.tags">
+            <td>Tags</td>
+            <td>{{ (guest.company.tags || []).join(", ") }}</td>
+          </tr>
+          <tr v-if="guest.company.foundedYear">
+            <td>Founded</td>
+            <td>{{ guest.company.foundedYear }}</td>
+          </tr>
+          <tr v-if="guest.company.location">
+            <td>Location</td>
+            <td>{{ guest.company.location }}</td>
+          </tr>
+          <tr v-if="guest.company.timeZone">
+            <td>Timezone</td>
+            <td>{{ guest.company.timeZone }}</td>
+          </tr>
+          <tr>
+            <td>Profiles</td>
+            <td>
+              <a
+                target="_blank"
+                :href="
+                  `https://www.facebook.com/${guest.company.facebook.handle}`
+                "
+                v-if="guest.company.facebook && guest.company.facebook.handle"
+              >
+                <b-icon icon="facebook" />
+              </a>
+              <a
+                target="_blank"
+                :href="`https://linkedin.com/${guest.company.linkedin.handle}`"
+                v-if="guest.company.linkedin && guest.company.linkedin.handle"
+              >
+                <b-icon icon="linkedin" />
+              </a>
+              <a
+                target="_blank"
+                :href="`https://twitter.com/${guest.company.twitter.handle}`"
+                v-if="guest.company.twitter && guest.company.twitter.handle"
+              >
+                <b-icon icon="twitter" />
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
     <h2 class="is-size-5" style="margin: 1rem 0">Emails</h2>
     <b-table
-      :loading="loading"
       :data="meeting.emails"
       :opened-detailed="opened"
       detailed
