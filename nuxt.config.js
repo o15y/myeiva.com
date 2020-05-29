@@ -37,7 +37,6 @@ export default {
   plugins: [
     "~/plugins/axios.ts",
     "~/plugins/vuex-persist.ts",
-    "~/plugins/vue-tour.ts",
     "~/plugins/tracking.ts",
   ],
   /*

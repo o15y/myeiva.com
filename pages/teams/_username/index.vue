@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-tour name="myTour" :steps="steps"></v-tour>
     <div v-if="!loading && !meetings.data.length" class="has-text-centered">
       <img
         alt=""
@@ -87,27 +86,8 @@
   })
   export default class TeamsHome extends Vue {
     meetings: any = { data: [] };
-
-    $tours: any;
     loading = false;
     loadingMore = false;
-    steps = [
-      {
-        target: ".navbar-brand img",
-        header: {
-          title: "Welcome to your dashboard",
-        },
-        content: "We'll do a quick tour so you can get started",
-      },
-      {
-        target: ".menu-list li:nth-child(1) a",
-        placement: "right",
-        header: {
-          title: "Welcome to your dashboard",
-        },
-        content: "We'll do a quick tour so you can get started",
-      },
-    ];
 
     async mounted() {
       return this.get();
@@ -139,10 +119,6 @@
         );
         this.meetings.hasMore = data.hasMore;
         this.meetings = data;
-      } catch (error) {}
-      try {
-        console.log(this.$tours);
-        if (this.$tours["myTour"]) this.$tours["myTour"].start();
       } catch (error) {}
       this.loading = false;
     }
