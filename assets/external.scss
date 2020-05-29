@@ -23,7 +23,8 @@
   pointer-events: all;
 }
 .shepherd-element {
-  background: #fff;
+  background: #eee;
+  border: 0.25rem solid #8c1d74;
   border-radius: 5px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   max-width: 400px;
@@ -49,6 +50,9 @@
 .shepherd-element :before {
   box-sizing: border-box;
 }
+.shepherd-arrow {
+  border-radius: 1rem;
+}
 .shepherd-arrow,
 .shepherd-arrow:before {
   position: absolute;
@@ -59,7 +63,7 @@
 .shepherd-arrow:before {
   content: "";
   transform: rotate(45deg);
-  background: #fff;
+  background: #8c1d74;
 }
 .shepherd-element[data-popper-placement^="top"] > .shepherd-arrow {
   bottom: -8px;
@@ -85,6 +89,7 @@
   pointer-events: none;
 }
 .shepherd-content {
+  background-color: #eee;
   border-radius: 5px;
   outline: none;
   padding: 0;
@@ -102,7 +107,6 @@
 .shepherd-text {
   color: rgba(0, 0, 0, 0.75);
   font-size: 1rem;
-  line-height: 1.3em;
   max-height: 30vh;
   overflow: scroll;
   padding: 0.75em;
@@ -127,18 +131,18 @@
   padding: 1em;
 }
 .shepherd-button {
-  background: #3288e6;
+  font-size: 110%;
+  font-weight: bold;
+  background: #8c1d74;
   border: 0;
   border-radius: 3px;
-  color: hsla(0, 0%, 100%, 0.75);
+  color: #eee;
   cursor: pointer;
   margin-right: 0.5rem;
   padding: 0.5rem 1.5rem;
-  transition: all 0.5s ease;
 }
 .shepherd-button:not(:disabled):hover {
-  background: #196fcc;
-  color: hsla(0, 0%, 100%, 0.75);
+  box-shadow: inset 0 0 10rem rgba(0, 0, 0, 0.25);
 }
 .shepherd-button.shepherd-button-secondary {
   background: #f1f2f3;

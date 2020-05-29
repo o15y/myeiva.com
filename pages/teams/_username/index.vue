@@ -87,11 +87,10 @@
     },
   });
   tour.addStep({
-    id: "example-step",
     text:
-      "This step is attached to the bottom of the <code>.example-css-selector</code> element.",
+      "<strong>Welcome to EIVA!</strong> Let's get started with using this app. We'll do a quick tour so you know what's what.",
     attachTo: {
-      element: ".card",
+      element: ".navbar-item",
       on: "bottom",
     },
     buttons: [
@@ -100,6 +99,27 @@
         action: tour.next,
       },
     ],
+  });
+  tour.addStep({
+    text: "When you've set up some meetings, they'll appear here.",
+    attachTo: {
+      element: ".card",
+      on: "left",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
+  tour.addStep({
+    text:
+      "On the locations page, you can set your preferred meeting locations, like addresses and video calls. Click on the <strong>Locations</strong> link to continue.",
+    attachTo: {
+      element: ".menu-list li:nth-child(2)",
+      on: "left",
+    },
   });
 
   @Component({
@@ -114,6 +134,10 @@
     async mounted() {
       tour.start();
       return this.get();
+    }
+
+    beforeDestroy() {
+      tour.complete();
     }
 
     async get() {
