@@ -20,6 +20,7 @@
     "jwt-decode": "^2.2.0",
     "nuxt": "^2.12.2",
     "nuxt-buefy": "^0.3.31",
+    "shepherd.js": "^8.0.0",
     "ua-parser-js": "^0.7.21",
     "unique-selector": "^0.4.1",
     "vue-stripe-elements-plus": "^0.3.2",
