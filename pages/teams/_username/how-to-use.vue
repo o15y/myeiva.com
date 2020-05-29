@@ -55,10 +55,38 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import Shepherd from "shepherd.js";
+  const tour = new Shepherd.Tour({
+    defaultStepOptions: {
+      classes: "shadow-md bg-purple-dark",
+      scrollTo: true,
+    },
+  });
+  tour.addStep({
+    text:
+      "This is your assistant's email. You can use it to send emails to your assistant. Go back to the survey form to see how.",
+    attachTo: {
+      element: ".card code",
+      on: "bottom",
+    },
+    buttons: [
+      {
+        text: "Complete tour",
+        action: () => {
+          localStorage.setItem("tour-finished", "1");
+          tour.complete();
+        },
+      },
+    ],
+  });
 
   @Component({
     middleware: "authenticated",
     layout: "teams",
   })
-  export default class TeamsHowToUse extends Vue {}
+  export default class TeamsHowToUse extends Vue {
+    mounted() {
+      tour.start();
+    }
+  }
 </script>

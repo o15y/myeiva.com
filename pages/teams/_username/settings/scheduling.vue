@@ -136,6 +136,47 @@
 
 <script lang="ts">
   import { Vue, Component, Watch } from "vue-property-decorator";
+  import Shepherd from "shepherd.js";
+  const tour = new Shepherd.Tour({
+    defaultStepOptions: {
+      classes: "shadow-md bg-purple-dark",
+      scrollTo: true,
+    },
+  });
+  tour.addStep({
+    text: "Which days do you want your assistant to schedule meetings on?",
+    attachTo: {
+      element: ".card .field:nth-child(1)",
+      on: "left",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
+  tour.addStep({
+    text:
+      "If you use a calendar service, you can add a calendar URL here (<a href='#' target='_blank'>Learn how to find your URL</a>)",
+    attachTo: {
+      element: ".card .field:nth-child(5)",
+      on: "left",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
+  tour.addStep({
+    text: "Save your settings and click on How to use to continue",
+    attachTo: {
+      element: "[data-label='How to use']",
+      on: "left",
+    },
+  });
 
   const twoDigitTime = (time: number) => {
     if (time > 9) return time.toString();
@@ -161,6 +202,14 @@
       this.schedulingTimeEnd.setHours(17);
       this.schedulingTimeEnd.setMinutes(0);
       return this.get();
+    }
+
+    async mounted() {
+      tour.start();
+    }
+
+    beforeDestroy() {
+      tour.complete();
     }
 
     async get() {

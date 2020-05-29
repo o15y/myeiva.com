@@ -116,6 +116,48 @@
   import { mapGetters } from "vuex";
   import { Vue, Component, Watch } from "vue-property-decorator";
   import { truncate } from "../../../util/string";
+  import Shepherd from "shepherd.js";
+  const tour = new Shepherd.Tour({
+    defaultStepOptions: {
+      classes: "shadow-md bg-purple-dark",
+      scrollTo: true,
+    },
+  });
+  tour.addStep({
+    text:
+      "You can see your meeting locations here. We've already added a unique video chat link for you.",
+    attachTo: {
+      element: ".card-content h1",
+      on: "bottom",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
+  tour.addStep({
+    text:
+      "Add some more locations, like phone numbers and addresses. Your assistant will recommend these locations.",
+    attachTo: {
+      element: ".card-content h2",
+      on: "left",
+    },
+    buttons: [
+      {
+        text: "Next",
+        action: tour.next,
+      },
+    ],
+  });
+  tour.addStep({
+    text: "Once you're done adding locations, click on Settings to continue.",
+    attachTo: {
+      element: ".menu-list li:nth-child(3)",
+      on: "left",
+    },
+  });
 
   @Component({
     middleware: "authenticated",
@@ -131,8 +173,13 @@
     newLocationType = "VIDEO_CALL";
     newLocationService = "Jitsi Meet";
 
-    async created() {
+    async mounted() {
+      tour.start();
       return this.get();
+    }
+
+    beforeDestroy() {
+      tour.complete();
     }
 
     async get() {
