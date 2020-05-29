@@ -70,7 +70,10 @@
         const { data } = await this.$axios.patch(
           `/organizations/${this.$route.params.username}`,
           {
-            assistantName: this.team.assistantName,
+            useClearbit: this.team.useClearbit,
+            clearbitApiKey: this.team.clearbitApiKey || "",
+            googleAccessToken: this.team.googleAccessToken || "",
+            googleRefreshToken: this.team.googleRefreshToken || "",
           }
         );
         this.team = data.updated;
