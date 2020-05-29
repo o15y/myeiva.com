@@ -53,10 +53,18 @@
             </div>
             <div class="column has-text-right">
               <div v-if="meeting.confirmedTime">
-                {{ meeting.confirmedTime }}
+                <div>
+                  {{ new Date(meeting.confirmedTime).toLocaleString() }}
+                </div>
+                <div>
+                  {{ meeting.duration }} minute {{ meeting.meetingType }}
+                </div>
               </div>
               <div v-else>
-                <em>Awaiting confirmation</em>
+                <div><em>Awaiting confirmation</em></div>
+                <div>
+                  {{ meeting.duration }} minute {{ meeting.meetingType }}
+                </div>
               </div>
             </div>
           </div>
