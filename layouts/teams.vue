@@ -92,6 +92,11 @@
             to: "/settings/team",
           },
           {
+            label: "Extensions",
+            icon: "apps",
+            to: "/settings/extensions",
+          },
+          {
             label: "Domains",
             icon: "web",
             to: "/settings/domains",
