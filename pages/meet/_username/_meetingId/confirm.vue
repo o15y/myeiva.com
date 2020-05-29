@@ -1,5 +1,20 @@
 <template>
-  <div>
+  <div v-if="completed">
+    <b-icon
+      icon="check-circle"
+      size="is-large"
+      type="is-success"
+      style="margin-bottom: 1rem"
+    />
+    <h1 class="title is-4">Appointment confirmed</h1>
+    <div class="content">
+      <p>
+        You'll a receive a confirmation email with a calendar invitation in a
+        few moments.
+      </p>
+    </div>
+  </div>
+  <div v-else>
     <div style="margin-bottom: 1.5rem; display: flex; justify-content: center">
       <figure
         class="image avatar is-64x64"
@@ -62,9 +77,9 @@
             >
           </b-select>
         </b-field>
-        <b-button type="is-primary" native-type="submit" :loading="loadingSave"
-          >Confirm appointment</b-button
-        >
+        <b-button type="is-primary" native-type="submit" :loading="loadingSave">
+          Confirm appointment
+        </b-button>
         <b-collapse
           style="margin-top: 1rem"
           :open="false"
@@ -73,6 +88,7 @@
           <button
             class="button is-light is-small"
             slot="trigger"
+            type="button"
             aria-controls="advancedSettings"
           >
             Advanced settings
@@ -175,6 +191,7 @@
 
     loading = false;
     loadingSave = false;
+    completed = false;
 
     async mounted() {
       if (typeof this.$route.query.token !== "string")
@@ -202,11 +219,29 @@
       try {
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         if (this.guestTimezone !== userTimezone) this.showTimezone = true;
+        this.guestTimezone = userTimezone;
       } catch (error) {}
       this.loading = false;
     }
 
-    async save() {}
+    async save() {
+      this.loadingSave = true;
+      try {
+        await this.$axios.post(
+          `/api/confirm-meeting/${this.$route.params.username}/${this.$route.params.meetingId}`,
+          {
+            token: this.$route.query.token,
+            guestName: this.guestName,
+            guestEmail: this.guestEmail,
+            guestTimezone: this.guestTimezone,
+            duration: this.duration,
+            selectedDatetime: this.selectedDatetime.toISOString(),
+          }
+        );
+      } catch (error) {}
+      this.loadingSave = false;
+      this.completed = true;
+    }
   }
 </script>
 
