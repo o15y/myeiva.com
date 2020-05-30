@@ -50,8 +50,19 @@ export default {
     ["nuxt-buefy", { css: false }],
     // Doc: https://axios.nuxtjs.org/usage
     "@nuxtjs/axios",
+    "@nuxtjs/sentry",
     "@nuxtjs/pwa",
   ],
+
+  /*
+   ** Sentry configuration
+   ** See https://github.com/nuxt-community/sentry-module#setup
+   */
+  sentry: {
+    dns:
+      "https://957d1a6c8ebc443f9bf3136dcc77a948@o400462.ingest.sentry.io/5258918",
+  },
+
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
