@@ -37,6 +37,7 @@ export default {
   plugins: [
     "~/plugins/axios.ts",
     "~/plugins/vuex-persist.ts",
+    "~/plugins/sentry.ts",
     "~/plugins/tracking.ts",
   ],
   /*
