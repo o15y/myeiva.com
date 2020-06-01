@@ -1,6 +1,12 @@
 <template>
   <div>
     <h1 class="is-size-4" style="margin-bottom: 1rem">How to use</h1>
+    <b-message type="is-info" style="margin-bottom: 1rem" has-icon>
+      If you're currently doing the research survey, you can
+      <strong>copy the email below and go back to the form</strong> to see an
+      example email you should send. Once you've sent the email, you can fill
+      the rest of the survey.
+    </b-message>
     <h2 class="is-size-5">Your assistant's email</h2>
     <p style="margin: 1rem 0">
       <code style="font-size: 110%">
