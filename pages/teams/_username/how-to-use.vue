@@ -9,11 +9,12 @@
     </b-message>
     <h2 class="is-size-5">Your assistant's email</h2>
     <p style="margin: 1rem 0">
-      <code style="font-size: 110%">
+      <code style="font-size: 110%" class="assistant-email">
         meet-{{ $route.params.username }}@myeiva.com
       </code>
     </p>
-    <h2 class="is-size-5">Schedule an appointment</h2>
+    <div><b-button icon-left="content-copy" @click="copy">Copy</b-button></div>
+    <h2 class="is-size-5" style="margin-top: 1rem">Schedule an appointment</h2>
     <p style="margin: 1rem 0">
       To ask your assistant to schedule a new appointment with someone:
     </p>
@@ -91,6 +92,21 @@
   export default class TeamsHowToUse extends Vue {
     mounted() {
       if (!localStorage.getItem("tour-finished")) tour.start();
+    }
+
+    copy() {
+      const emailNode = document.querySelector(".assistant-email");
+      const range = document.createRange();
+      if (!emailNode) return;
+      range.selectNode(emailNode);
+      const selection = window.getSelection();
+      if (selection) selection.addRange(range);
+      try {
+        const successful = document.execCommand("copy");
+        const msg = successful ? "successful" : "unsuccessful";
+      } catch (error) {}
+      if (selection) selection.removeAllRanges();
+      this.$buefy.snackbar.open({ message: "Copied", position: "is-bottom" });
     }
   }
 </script>
