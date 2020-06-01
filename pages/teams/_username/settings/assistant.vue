@@ -168,7 +168,14 @@
         const { data } = await this.$axios.patch(
           `/organizations/${this.$route.params.username}`,
           {
+            username: this.team.username,
             assistantName: this.team.assistantName,
+            assistantSignature: this.team.assistantSignature,
+            unsubscribeLink: this.team.unsubscribeLink,
+            readReceipts: this.team.readReceipts,
+            emailConfirmation: this.team.emailConfirmation,
+            showPoweredByAra: this.team.showPoweredByAra,
+            emailLanguage: this.team.emailLanguage,
           }
         );
         this.team = data.updated;
