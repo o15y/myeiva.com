@@ -109,8 +109,12 @@
         Add location
       </b-button>
     </form>
-    <form @submit.prevent="save" style="margin-top: 1rem">
-      <h1 class="is-size-5" style="margin: 1rem 0">Default location</h1>
+    <form @submit.prevent="save" style="margin-top: 1.5rem">
+      <h1 class="is-size-5" style="margin: 1rem 0 0.5rem">Default location</h1>
+      <p style="margin-bottom: 1rem">
+        If you don't specify a location in your email, we'll use your default
+        location.
+      </p>
       <b-field>
         <b-select v-model="team.schedulingLocation" expanded required>
           <option
@@ -124,7 +128,7 @@
       </b-field>
       <div style="margin-top: 1rem">
         <b-button type="is-primary" native-type="submit" :loading="loadingSave">
-          Update domain settings
+          Update default location
         </b-button>
       </div>
       <b-loading
