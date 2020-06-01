@@ -155,11 +155,11 @@
             icon: "api",
             to: "/developers/api-keys",
           },
-          {
-            label: "Logs",
-            icon: "chart-areaspline-variant",
-            to: "/developers/api-logs",
-          },
+          // {
+          //   label: "Logs",
+          //   icon: "chart-areaspline-variant",
+          //   to: "/developers/api-logs",
+          // },
           {
             label: "Webhooks",
             icon: "webhook",
