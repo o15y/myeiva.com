@@ -243,13 +243,16 @@
           `/organizations/${this.$route.params.username}`,
           {
             schedulingDays: this.schedulingDays.join(","),
-            customCalendarUrl: this.team.customCalendarUrl,
             schedulingTimeStart: `${twoDigitTime(
               this.schedulingTimeStart.getHours()
             )}:${twoDigitTime(this.schedulingTimeStart.getMinutes())}:00`,
             schedulingTimeEnd: `${twoDigitTime(
               this.schedulingTimeEnd.getHours()
             )}:${twoDigitTime(this.schedulingTimeEnd.getMinutes())}:00`,
+            schedulingPadding: this.team.schedulingPadding,
+            customCalendarUrl: this.team.customCalendarUrl,
+            schedulingDuration: this.team.schedulingDuration,
+            schedulingType: this.team.schedulingType,
           }
         );
         this.team = data.updated;
