@@ -13,7 +13,7 @@
           <span>{{ locationTypeLabel(props.row.type) }}</span>
         </b-table-column>
         <b-table-column sortable field="value" label="Location">
-          <span>{{ truncate(props.row.value) }}</span>
+          <span>{{ truncate(locationName(props.row)) }}</span>
         </b-table-column>
         <b-table-column class="has-text-right">
           <b-tooltip label="Remove">
@@ -109,6 +109,29 @@
         Add location
       </b-button>
     </form>
+    <form @submit.prevent="save" style="margin-top: 1rem">
+      <h1 class="is-size-5" style="margin: 1rem 0">Default location</h1>
+      <b-field>
+        <b-select v-model="team.schedulingLocation" expanded required>
+          <option
+            v-for="(location, index) in location.data"
+            :value="location.id"
+            :key="`l${index}${location.id}`"
+          >
+            {{ locationName(location) }}
+          </option>
+        </b-select>
+      </b-field>
+      <div style="margin-top: 1rem">
+        <b-button type="is-primary" native-type="submit" :loading="loadingSave">
+          Update domain settings
+        </b-button>
+      </div>
+      <b-loading
+        :is-full-page="false"
+        :active.sync="loadingSettings"
+      ></b-loading>
+    </form>
   </div>
 </template>
 
@@ -166,7 +189,10 @@
   export default class UsersProfile extends Vue {
     loading = false;
     loadingAdd = false;
+    loadingSave = false;
+    loadingSettings = false;
     location: any = { data: [] };
+    team: any = {};
     truncate = truncate;
 
     newLocationValue = "";
@@ -175,6 +201,14 @@
 
     async mounted() {
       if (!localStorage.getItem("tour-finished")) tour.start();
+      this.loadingSettings = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}?select=schedulingLocation`
+        );
+        this.team = data;
+      } catch (error) {}
+      this.loadingSettings = false;
       return this.get();
     }
 
@@ -208,7 +242,9 @@
             value: this.newLocationValue,
             type: this.newLocationType,
             data:
-              this.newLocationService && this.newLocationService !== "Other"
+              this.newLocationService &&
+              this.newLocationService !== "Other" &&
+              this.newLocationType === "VIDEO_CALL"
                 ? JSON.stringify({
                     name: this.newLocationService,
                     template: "{{name}}: {{value}}",
@@ -221,6 +257,21 @@
         this.newLocationType = "";
       } catch (error) {}
       this.loadingAdd = false;
+    }
+
+    async save() {
+      this.loadingSave = true;
+      try {
+        const { data } = await this.$axios.patch(
+          `/organizations/${this.$route.params.username}`,
+          {
+            autoJoinDomain: this.team.autoJoinDomain,
+            onlyAllowDomain: this.team.onlyAllowDomain,
+          }
+        );
+        this.team = data.updated;
+      } catch (error) {}
+      this.loadingSave = false;
     }
 
     async deleteLocation(id: number) {
@@ -250,6 +301,26 @@
       if (key === "PHONE_CALL") return "Phone call";
       if (key === "VIDEO_CALL") return "Video call";
       return key;
+    }
+
+    locationName(location: any) {
+      if (location.data) {
+        let data: any = {};
+        try {
+          data = JSON.parse(location.data);
+        } catch (error) {}
+        if (data.template) {
+          let result = data.template;
+          Object.keys(data).forEach((key) => {
+            result = result.replace(`{{${key}}}`, data[key]);
+          });
+          Object.keys(location).forEach((key) => {
+            result = result.replace(`{{${key}}}`, location[key]);
+          });
+          if (result) return result;
+        }
+      }
+      return location.value;
     }
 
     get newLocationLabel() {
