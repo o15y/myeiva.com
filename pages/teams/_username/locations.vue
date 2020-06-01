@@ -265,8 +265,7 @@
         const { data } = await this.$axios.patch(
           `/organizations/${this.$route.params.username}`,
           {
-            autoJoinDomain: this.team.autoJoinDomain,
-            onlyAllowDomain: this.team.onlyAllowDomain,
+            schedulingLocation: this.team.schedulingLocation,
           }
         );
         this.team = data.updated;
