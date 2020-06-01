@@ -33,53 +33,60 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { Vue, Component, Watch } from "vue-property-decorator";
+  import { mapGetters } from "vuex";
+  import { Vue, Component, Watch } from "vue-property-decorator";
 
-@Component({
-  middleware: "authenticated",
-  layout: "teams",
-})
-export default class UsersProfile extends Vue {
-  loading = false;
-  loadingSave = false;
-  team: any = {};
-  ipRestrictions: string[] = [];
+  @Component({
+    middleware: "authenticated",
+    layout: "teams",
+  })
+  export default class UsersProfile extends Vue {
+    loading = false;
+    loadingSave = false;
+    team: any = {};
+    ipRestrictions: string[] = [];
 
-  async created() {
-    return this.get();
+    async created() {
+      return this.get();
+    }
+
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}`
+        );
+        this.team = data;
+        if (this.team.ipRestrictions)
+          this.ipRestrictions = (this.team.ipRestrictions || [])
+            .split(",")
+            .map((i: string) => i.trim());
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    async save() {
+      this.loadingSave = true;
+      try {
+        const { data } = await this.$axios.patch(
+          `/organizations/${this.$route.params.username}`,
+          {
+            name: this.team.name,
+            username: this.team.username,
+            ipRestrictions: this.ipRestrictions.join(", ") || undefined,
+            forceTwoFactor: this.team.forceTwoFactor,
+          }
+        );
+        this.team = data.updated;
+        if (data.username !== this.$route.params.username)
+          this.$router.replace(
+            this.$route.path.replace(
+              `/${this.$route.params.username}/`,
+              `/${data.username}/`
+            )
+          );
+      } catch (error) {}
+      this.loadingSave = false;
+    }
   }
-
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/organizations/${this.$route.params.username}`
-      );
-      this.team = data;
-      if (this.team.ipRestrictions)
-        this.ipRestrictions = (this.team.ipRestrictions || [])
-          .split(",")
-          .map((i: string) => i.trim());
-    } catch (error) {}
-    this.loading = false;
-  }
-
-  async save() {
-    this.loadingSave = true;
-    try {
-      const { data } = await this.$axios.patch(
-        `/organizations/${this.$route.params.username}`,
-        {
-          name: this.team.name,
-          username: this.team.username,
-          ipRestrictions: this.ipRestrictions.join(", ") || undefined,
-          forceTwoFactor: this.team.forceTwoFactor,
-        }
-      );
-      this.team = data.updated;
-    } catch (error) {}
-    this.loadingSave = false;
-  }
-}
 </script>

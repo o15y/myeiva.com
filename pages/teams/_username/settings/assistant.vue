@@ -179,6 +179,13 @@
           }
         );
         this.team = data.updated;
+        if (data.username !== this.$route.params.username)
+          this.$router.replace(
+            this.$route.path.replace(
+              `/${this.$route.params.username}/`,
+              `/${data.username}/`
+            )
+          );
       } catch (error) {}
       this.loadingSave = false;
     }
