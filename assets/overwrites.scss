@@ -11,3 +11,8 @@
   padding: 0.5em 1em 0.5em 0.75em;
   border-radius: 2rem;
 }
+
+.menu-list .is-active {
+  border-radius: 2rem;
+  display: inline-block;
+}
