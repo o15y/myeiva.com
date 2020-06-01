@@ -4,7 +4,7 @@
     <h2 class="is-size-5">Your assistant's email</h2>
     <p style="margin: 1rem 0">
       <code style="font-size: 110%">
-        meet-{{ $route.params.username }}@mail.araassistant.com
+        meet-{{ $route.params.username }}@myeiva.com
       </code>
     </p>
     <h2 class="is-size-5">Schedule an appointment</h2>
@@ -14,9 +14,7 @@
     <ol style="margin: 0 0 1rem 1rem">
       <li>Write an email to whoever you want to set an appointment with</li>
       <li>
-        Add your assistant in CC (meet-{{
-          $route.params.username
-        }}@mail.araassistant.com)
+        Add your assistant in CC (meet-{{ $route.params.username }}@myeiva.com)
       </li>
       <li>Write in natural language, like the following example.</li>
     </ol>
@@ -27,7 +25,7 @@
       <div>
         <strong>CC: </strong> Your Assistant (meet-{{
           $route.params.username
-        }}@mail.araassistant.com)
+        }}@myeiva.com)
       </div>
       <div><strong>Subject: </strong> Appointment</div>
       <div><strong>Message: </strong></div>

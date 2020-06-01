@@ -1,9 +1,6 @@
 <template>
   <main>
-    <img
-      alt=""
-      src="https://araassistant.com/images/undraw_happy_news_hxmt.svg"
-    />
+    <img alt="" src="/illustrations/Home.svg" />
     <h1>Get your own virtual assistant.</h1>
     <p>Schedule appointments, send emails, and more.</p>
     <nuxt-link class="button is-primary is-large" to="/auth/register">

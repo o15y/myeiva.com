@@ -59,10 +59,9 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL:
-      process.env.NODE_ENV === "production"
-        ? "https://eiva-api.o15y.com/v1"
-        : "http://localhost:7007/v1",
+    baseURL: process.env.NODE_ENV === "production"
+      ? "https://api.myeiva.com/v1"
+      : "http://localhost:7007/v1",
   },
   router: {
     middleware: "token",
