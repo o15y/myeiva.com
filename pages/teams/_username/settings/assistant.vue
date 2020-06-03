@@ -33,6 +33,11 @@
         </b-checkbox>
       </b-field>
       <b-field>
+        <b-checkbox v-model="team.sendErrorInfo">
+          Send me an email if there is a scheduling error
+        </b-checkbox>
+      </b-field>
+      <b-field>
         <b-checkbox v-model="team.showPoweredByAra">
           Add a "Powered by EIVA" link at the end of every email
         </b-checkbox>
@@ -174,6 +179,7 @@
             unsubscribeLink: this.team.unsubscribeLink,
             readReceipts: this.team.readReceipts,
             emailConfirmation: this.team.emailConfirmation,
+            sendErrorInfo: this.team.sendErrorInfo,
             showPoweredByAra: this.team.showPoweredByAra,
             emailLanguage: this.team.emailLanguage,
           }
