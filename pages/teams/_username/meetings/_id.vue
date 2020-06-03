@@ -1,6 +1,32 @@
 <template>
   <div>
     <b-loading :active="loading" />
+    <div style="margin-bottom: 1.5rem; display: flex; margin-left: 1rem">
+      <figure
+        class="image avatar is-64x64"
+        v-if="
+          (user && user.details && user.details.profilePicture) ||
+            user.details.name
+        "
+      >
+        <img
+          class="is-rounded"
+          :src="
+            user.details.profilePicture ||
+              `https://ui-avatars.com/api/?name=${user.details.name}&background=3498db&color=fff`
+          "
+        />
+      </figure>
+      <figure class="image avatar is-64x64">
+        <img
+          class="is-rounded"
+          :src="
+            guestPicture ||
+              `https://ui-avatars.com/api/?name=${guestName}&background=e74c3c&color=fff`
+          "
+        />
+      </figure>
+    </div>
     <h1 class="is-size-4" style="margin-bottom: 1rem" v-if="guestName">
       Meeting with {{ guestName }}
     </h1>
@@ -10,17 +36,17 @@
         <tr>
           <td>Status</td>
           <td>
-            <span v-if="meetingStatus === 'CONFIRMED'">
+            <span v-if="meetingStatus === 'CONFIRMED'" class="is-flex">
               <b-icon icon="check-circle" type="is-success" />
-              Confirmed
+              <span style="margin-left: 0.5rem">Confirmed</span>
             </span>
-            <span v-else-if="meetingStatus === 'PAST'">
+            <span v-else-if="meetingStatus === 'PAST'" class="is-flex">
               <b-icon icon="check-circle" type="is-success" />
-              Completed
+              <span style="margin-left: 0.5rem">Completed</span>
             </span>
-            <span v-else>
+            <span v-else class="is-flex">
               <b-icon icon="clock" type="is-warning" />
-              Awaiting confirmation
+              <span style="margin-left: 0.5rem">Awaiting confirmation</span>
             </span>
           </td>
         </tr>
@@ -34,11 +60,11 @@
         </tr>
         <tr>
           <td>Meeting type</td>
-          <td>{{ meeting.meetingType }}</td>
+          <td>{{ (meeting.location || {}).type }}</td>
         </tr>
         <tr>
           <td>Location</td>
-          <td>{{ (meeting.location || {}).value }}</td>
+          <td>{{ locationName(meeting.location) }}</td>
         </tr>
       </tbody>
     </table>
@@ -240,10 +266,10 @@
         <b-table-column class="has-text-right">
           <b-button
             type="is-primary"
-            icon-right="eye"
+            icon-left="eye"
             @click="toggleOpened(props.row.id)"
           >
-            <span>View logs</span>
+            <span>Details</span>
           </b-button>
         </b-table-column>
       </template>
@@ -256,15 +282,15 @@
             </tr>
             <tr>
               <td>From</td>
-              <td>{{ emailify(props.row.from) }}</td>
+              <td>{{ emailify(props.row.from) || "(empty)" }}</td>
             </tr>
             <tr>
               <td>To</td>
-              <td>{{ emailify(props.row.to) }}</td>
+              <td>{{ emailify(props.row.to) || "(empty)" }}</td>
             </tr>
             <tr>
               <td>CC</td>
-              <td>{{ emailify(props.row.cc) }}</td>
+              <td>{{ emailify(props.row.cc) || "(empty)" }}</td>
             </tr>
           </tbody>
         </table>
@@ -283,14 +309,20 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import { mapGetters } from "vuex";
+  import { User } from "../../../../store/auth";
   @Component({
     middleware: "authenticated",
     layout: "teams",
+    computed: mapGetters({
+      user: "auth/user",
+    }),
   })
   export default class MeetingSingle extends Vue {
     loading = false;
     meeting: any = { emails: [] };
     opened: number[] = [];
+    user!: User;
 
     async mounted() {
       return this.get();
@@ -310,6 +342,12 @@
     get guestName() {
       return JSON.parse(this.meeting.guests || "[]")
         .map((i: any) => i.name)
+        .join(", ");
+    }
+
+    get guestPicture() {
+      return JSON.parse(this.meeting.guests || "[]")
+        .map((i: any) => i.person?.avatar)
         .join(", ");
     }
 
@@ -351,18 +389,41 @@
         const result = JSON.parse(info);
         if (Array.isArray(result)) {
           return (
-            result
-              .map(
-                (i: any) =>
-                  `${i.name ? `${i.name} (` : ""}${i.address}${
-                    i.name ? ")" : ""
-                  }`
-              )
-              .join(", ") ?? "(empty)"
+            (
+              result
+                .map(
+                  (i: any) =>
+                    `${i.name ? `${i.name} (` : ""}${i.address}${
+                      i.name ? ")" : ""
+                    }`
+                )
+                .join(", ") ?? ""
+            ).trim() ?? "(empty)"
           );
-        }
+        } else return "(empty)";
       } catch (error) {}
       return "(empty)";
+    }
+
+    locationName(location: any) {
+      location = location || {};
+      if (typeof location === "object" && location.data) {
+        let data: any = {};
+        try {
+          data = JSON.parse(location.data);
+        } catch (error) {}
+        if (data.template) {
+          let result = data.template;
+          Object.keys(data).forEach((key) => {
+            result = result.replace(`{{${key}}}`, data[key]);
+          });
+          Object.keys(location).forEach((key) => {
+            result = result.replace(`{{${key}}}`, location[key]);
+          });
+          if (result) return result;
+        }
+      }
+      return location.value;
     }
   }
 </script>
@@ -375,5 +436,11 @@
     word-wrap: break-word;
     white-space: nowrap;
     font-family: monospace;
+  }
+  .avatar img {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+  .avatar {
+    margin: 0 -10px;
   }
 </style>
