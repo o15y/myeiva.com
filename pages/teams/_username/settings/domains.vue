@@ -172,129 +172,130 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { Vue, Component, Watch } from "vue-property-decorator";
-import download from "js-file-download";
+  import { mapGetters } from "vuex";
+  import { Vue, Component, Watch } from "vue-property-decorator";
+  import download from "js-file-download";
 
-@Component({
-  middleware: "authenticated",
-  layout: "teams",
-})
-export default class UsersProfile extends Vue {
-  loading = false;
-  loadingSettings = false;
-  loadingSave = false;
-  loadingAdd = false;
-  opened: number[] = [];
-  team: any = {};
-  domains: any = { data: [] };
-  ipRestrictions: string[] = [];
-  newDomain = "";
+  @Component({
+    middleware: "authenticated",
+    layout: "teams",
+  })
+  export default class UsersProfile extends Vue {
+    loading = false;
+    loadingSettings = false;
+    loadingSave = false;
+    loadingAdd = false;
+    opened: number[] = [];
+    team: any = {};
+    domains: any = { data: [] };
+    ipRestrictions: string[] = [];
+    newDomain = "";
 
-  async created() {
-    this.get();
-    this.loadingSettings = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/organizations/${this.$route.params.username}`
-      );
-      this.team = data;
-    } catch (error) {}
-    this.loadingSettings = false;
+    async created() {
+      this.get();
+      this.loadingSettings = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}`
+        );
+        this.team = data;
+      } catch (error) {}
+      this.loadingSettings = false;
+    }
+
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}/domains?first=10${
+            this.domains.data.length
+              ? `&after=${this.domains.data[this.domains.data.length - 1].id}`
+              : ""
+          }`
+        );
+        this.domains.data.push(...(data.data || []));
+        this.domains.hasMore = data.hasMore;
+        this.domains = data;
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    async add() {
+      this.loadingAdd = true;
+      try {
+        const { data } = await this.$axios.put(
+          `/organizations/${this.$route.params.username}/domains`,
+          {
+            domain: this.newDomain,
+          }
+        );
+        this.domains.data.push(data.added);
+        this.newDomain = "";
+      } catch (error) {}
+      this.loadingAdd = false;
+    }
+
+    async save() {
+      this.loadingSave = true;
+      try {
+        const { data } = await this.$axios.patch(
+          `/organizations/${this.$route.params.username}`,
+          {
+            autoJoinDomain: this.team.autoJoinDomain,
+            onlyAllowDomain: this.team.onlyAllowDomain,
+          }
+        );
+        this.team = data.updated;
+      } catch (error) {}
+      this.loadingSave = false;
+    }
+
+    async deleteDomain(id: number, domain: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting domain",
+        message: `Are you sure you want to delete your domain <strong>${domain}</strong>? This action is not reversible, and you'll have to verify this domain again if you change your mind.`,
+        confirmText: "Yes, delete domain",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(
+              `/organizations/${this.$route.params.username}/domains/${id}`
+            );
+          } catch (error) {}
+          this.domains = { data: [] };
+          return this.get();
+        },
+      });
+    }
+
+    downloadFile(text: string) {
+      download(text, "staart-verify.txt");
+    }
+
+    async verifyDomain(method: string, id: number, domain: string) {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.post(
+          `/organizations/${this.$route.params.username}/domains/${id}/verify`,
+          {
+            method,
+          }
+        );
+        this.team = data.updated;
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    get hasUnverifiedDomain() {
+      return !!this.domains.data.find((i: any) => !i.isVerified);
+    }
+
+    addToOpened(id: number) {
+      if (!this.opened.includes(id)) this.opened.push(id);
+    }
   }
-
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/organizations/${this.$route.params.username}/domains?first=10${
-          this.domains.data.length
-            ? `&after=${this.domains.data[this.domains.data.length - 1].id}`
-            : ""
-        }`
-      );
-      this.domains.data.push(...(data.data || []));
-      this.domains.hasMore = data.hasMore;
-      this.domains = data;
-    } catch (error) {}
-    this.loading = false;
-  }
-
-  async add() {
-    this.loadingAdd = true;
-    try {
-      const { data } = await this.$axios.put(
-        `/organizations/${this.$route.params.username}/domains`,
-        {
-          domain: this.newDomain,
-        }
-      );
-      this.domains.data.push(data.added);
-      this.newDomain = "";
-    } catch (error) {}
-    this.loadingAdd = false;
-  }
-
-  async save() {
-    this.loadingSave = true;
-    try {
-      const { data } = await this.$axios.patch(
-        `/organizations/${this.$route.params.username}`,
-        {
-          autoJoinDomain: this.team.autoJoinDomain,
-          onlyAllowDomain: this.team.onlyAllowDomain,
-        }
-      );
-      this.team = data.updated;
-    } catch (error) {}
-    this.loadingSave = false;
-  }
-
-  async deleteDomain(id: number, domain: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting domain",
-      message: `Are you sure you want to delete your domain <strong>${domain}</strong>? This action is not reversible, and you'll have to verify this domain again if you change your mind.`,
-      confirmText: "Yes, delete domain",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(
-            `/organizations/${this.$route.params.username}/domains/${id}`
-          );
-        } catch (error) {}
-        return this.get();
-      },
-    });
-  }
-
-  downloadFile(text: string) {
-    download(text, "staart-verify.txt");
-  }
-
-  async verifyDomain(method: string, id: number, domain: string) {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.post(
-        `/organizations/${this.$route.params.username}/domains/${id}/verify`,
-        {
-          method,
-        }
-      );
-      this.team = data.updated;
-    } catch (error) {}
-    this.loading = false;
-  }
-
-  get hasUnverifiedDomain() {
-    return !!this.domains.data.find((i: any) => !i.isVerified);
-  }
-
-  addToOpened(id: number) {
-    if (!this.opened.includes(id)) this.opened.push(id);
-  }
-}
 </script>

@@ -64,67 +64,68 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
+  import { Vue, Component, Watch } from "vue-property-decorator";
 
-@Component({
-  middleware: "authenticated",
-  layout: "users",
-})
-export default class UsersAccessTokens extends Vue {
-  loading = false;
-  loadingCreate = false;
-  accessTokenName = "";
-  accessTokens: any = { data: [] };
+  @Component({
+    middleware: "authenticated",
+    layout: "users",
+  })
+  export default class UsersAccessTokens extends Vue {
+    loading = false;
+    loadingCreate = false;
+    accessTokenName = "";
+    accessTokens: any = { data: [] };
 
-  async created() {
-    return this.get();
+    async created() {
+      return this.get();
+    }
+
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/users/${this.$route.params.username}/access-tokens`
+        );
+        this.accessTokens = data;
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    async add() {
+      this.loadingCreate = true;
+      try {
+        const { data } = await this.$axios.put(
+          `/users/${this.$route.params.username}/access-tokens`,
+          {
+            name: this.accessTokenName ? this.accessTokenName : undefined,
+          }
+        );
+        this.accessTokens.data.push(data.added);
+      } catch (error) {}
+      this.accessTokenName = "";
+      this.loadingCreate = false;
+    }
+
+    async deleteAccessToken(id: number, accessToken: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting accessToken",
+        message: `Are you sure you want to delete your access token <strong>${accessToken}</strong>? This action is not reversible, and this access token will stop working immediately.`,
+        confirmText: "Yes, delete accessToken",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(
+              `/users/${this.$route.params.username}/access-tokens/${id}`
+            );
+          } catch (error) {}
+          this.accessTokens = { data: [] };
+          return this.get();
+        },
+      });
+    }
   }
-
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/users/${this.$route.params.username}/access-tokens`
-      );
-      this.accessTokens = data;
-    } catch (error) {}
-    this.loading = false;
-  }
-
-  async add() {
-    this.loadingCreate = true;
-    try {
-      const { data } = await this.$axios.put(
-        `/users/${this.$route.params.username}/access-tokens`,
-        {
-          name: this.accessTokenName ? this.accessTokenName : undefined,
-        }
-      );
-      this.accessTokens.data.push(data.added);
-    } catch (error) {}
-    this.accessTokenName = "";
-    this.loadingCreate = false;
-  }
-
-  async deleteAccessToken(id: number, accessToken: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting accessToken",
-      message: `Are you sure you want to delete your access token <strong>${accessToken}</strong>? This action is not reversible, and this access token will stop working immediately.`,
-      confirmText: "Yes, delete accessToken",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(
-            `/users/${this.$route.params.username}/access-tokens/${id}`
-          );
-        } catch (error) {}
-        return this.get();
-      },
-    });
-  }
-}
 </script>

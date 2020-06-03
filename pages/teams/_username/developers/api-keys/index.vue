@@ -81,73 +81,74 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
+  import { Vue, Component, Watch } from "vue-property-decorator";
 
-@Component({
-  middleware: "authenticated",
-  layout: "teams",
-})
-export default class UsersApiKeys extends Vue {
-  loading = false;
-  loadingCreate = false;
-  apiKeyName = "";
-  apiKeys: any = { data: [] };
+  @Component({
+    middleware: "authenticated",
+    layout: "teams",
+  })
+  export default class UsersApiKeys extends Vue {
+    loading = false;
+    loadingCreate = false;
+    apiKeyName = "";
+    apiKeys: any = { data: [] };
 
-  async created() {
-    return this.get();
-  }
+    async created() {
+      return this.get();
+    }
 
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/organizations/${this.$route.params.username}/api-keys`
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}/api-keys`
+        );
+        this.apiKeys = data;
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    async add() {
+      this.loadingCreate = true;
+      try {
+        const { data } = await this.$axios.put(
+          `/organizations/${this.$route.params.username}/api-keys`,
+          {
+            name: this.apiKeyName ? this.apiKeyName : undefined,
+          }
+        );
+        this.apiKeys.data.push(data.added);
+      } catch (error) {}
+      this.apiKeyName = "";
+      this.loadingCreate = false;
+    }
+
+    async deleteApiKey(id: number, apiKey: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting API key",
+        message: `Are you sure you want to delete your API key <strong>${apiKey}</strong>? This action is not reversible, and this API key will stop working immediately.`,
+        confirmText: "Yes, delete API key",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(
+              `/organizations/${this.$route.params.username}/api-keys/${id}`
+            );
+          } catch (error) {}
+          this.apiKeys = { data: [] };
+          return this.get();
+        },
+      });
+    }
+
+    get hasUnrestrictedApiKey() {
+      return !!this.apiKeys.data.find(
+        (i: any) => !(i.ipRestrictions || i.referrerRestrictions || i.scopes)
       );
-      this.apiKeys = data;
-    } catch (error) {}
-    this.loading = false;
+    }
   }
-
-  async add() {
-    this.loadingCreate = true;
-    try {
-      const { data } = await this.$axios.put(
-        `/organizations/${this.$route.params.username}/api-keys`,
-        {
-          name: this.apiKeyName ? this.apiKeyName : undefined,
-        }
-      );
-      this.apiKeys.data.push(data.added);
-    } catch (error) {}
-    this.apiKeyName = "";
-    this.loadingCreate = false;
-  }
-
-  async deleteApiKey(id: number, apiKey: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting API key",
-      message: `Are you sure you want to delete your API key <strong>${apiKey}</strong>? This action is not reversible, and this API key will stop working immediately.`,
-      confirmText: "Yes, delete API key",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(
-            `/organizations/${this.$route.params.username}/api-keys/${id}`
-          );
-        } catch (error) {}
-        return this.get();
-      },
-    });
-  }
-
-  get hasUnrestrictedApiKey() {
-    return !!this.apiKeys.data.find(
-      (i: any) => !(i.ipRestrictions || i.referrerRestrictions || i.scopes)
-    );
-  }
-}
 </script>

@@ -88,74 +88,75 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import webhooksData from "../../../../../data/webhooks.json";
-import { truncate } from "../../../../../util/string";
+  import { Vue, Component, Watch } from "vue-property-decorator";
+  import webhooksData from "../../../../../data/webhooks.json";
+  import { truncate } from "../../../../../util/string";
 
-@Component({
-  middleware: "authenticated",
-  layout: "teams",
-})
-export default class UsersWebhooks extends Vue {
-  loading = false;
-  loadingCreate = false;
-  webhookUrl = "";
-  webhookEvent = "*";
-  webhooksData: any = webhooksData;
-  webhooks: any = { data: [] };
-  truncate = truncate;
+  @Component({
+    middleware: "authenticated",
+    layout: "teams",
+  })
+  export default class UsersWebhooks extends Vue {
+    loading = false;
+    loadingCreate = false;
+    webhookUrl = "";
+    webhookEvent = "*";
+    webhooksData: any = webhooksData;
+    webhooks: any = { data: [] };
+    truncate = truncate;
 
-  async created() {
-    return this.get();
+    async created() {
+      return this.get();
+    }
+
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/organizations/${this.$route.params.username}/webhooks`
+        );
+        this.webhooks = data;
+      } catch (error) {}
+      this.loading = false;
+    }
+
+    async add() {
+      this.loadingCreate = true;
+      try {
+        const { data } = await this.$axios.put(
+          `/organizations/${this.$route.params.username}/webhooks`,
+          {
+            url: this.webhookUrl,
+            event: this.webhookEvent,
+          }
+        );
+        this.webhooks.data.push(data.added);
+      } catch (error) {}
+      this.webhookUrl = "";
+      this.webhookEvent = "*";
+      this.loadingCreate = false;
+    }
+
+    async deleteWebhook(id: number, webhook: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting webhook",
+        message: `Are you sure you want to delete your webhook for <strong>${webhook}</strong>? This action is not reversible, and this webhook will stop triggering immediately.`,
+        confirmText: "Yes, delete webhook",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(
+              `/organizations/${this.$route.params.username}/webhooks/${id}`
+            );
+          } catch (error) {}
+          this.webhooks = { data: [] };
+          return this.get();
+        },
+      });
+    }
   }
-
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/organizations/${this.$route.params.username}/webhooks`
-      );
-      this.webhooks = data;
-    } catch (error) {}
-    this.loading = false;
-  }
-
-  async add() {
-    this.loadingCreate = true;
-    try {
-      const { data } = await this.$axios.put(
-        `/organizations/${this.$route.params.username}/webhooks`,
-        {
-          url: this.webhookUrl,
-          event: this.webhookEvent,
-        }
-      );
-      this.webhooks.data.push(data.added);
-    } catch (error) {}
-    this.webhookUrl = "";
-    this.webhookEvent = "*";
-    this.loadingCreate = false;
-  }
-
-  async deleteWebhook(id: number, webhook: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting webhook",
-      message: `Are you sure you want to delete your webhook for <strong>${webhook}</strong>? This action is not reversible, and this webhook will stop triggering immediately.`,
-      confirmText: "Yes, delete webhook",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(
-            `/organizations/${this.$route.params.username}/webhooks/${id}`
-          );
-        } catch (error) {}
-        return this.get();
-      },
-    });
-  }
-}
 </script>

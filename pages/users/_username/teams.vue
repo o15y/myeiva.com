@@ -127,6 +127,7 @@
               `/users/${this.$route.params.username}/memberships/${id}`
             );
           } catch (error) {}
+          this.teams = { data: [] };
           return this.get();
         },
       });

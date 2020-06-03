@@ -224,163 +224,164 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+  import { Vue, Component } from "vue-property-decorator";
 
-@Component({
-  middleware: "authenticated",
-  layout: "admin",
-})
-export default class AdminHome extends Vue {
-  loading = false;
-  loadingSave = false;
-  loadingAdd = false;
-  loadingTeams = false;
-  expires = false;
-  hasCode = false;
-  opened: number[] = [];
-  teams: any = { data: [] };
-  coupons: any = { data: [] };
+  @Component({
+    middleware: "authenticated",
+    layout: "admin",
+  })
+  export default class AdminHome extends Vue {
+    loading = false;
+    loadingSave = false;
+    loadingAdd = false;
+    loadingTeams = false;
+    expires = false;
+    hasCode = false;
+    opened: number[] = [];
+    teams: any = { data: [] };
+    coupons: any = { data: [] };
 
-  amount = "100";
-  code = "";
-  maxUses = "";
-  teamRestrictions = null;
-  currency = "usd";
-  expiresAt = new Date();
-  jwt = false;
-  description = "";
+    amount = "100";
+    code = "";
+    maxUses = "";
+    teamRestrictions = null;
+    currency = "usd";
+    expiresAt = new Date();
+    jwt = false;
+    description = "";
 
-  currencies = {
-    usd: "$",
-    eur: "€",
-    inr: "₹",
-  };
+    currencies = {
+      usd: "$",
+      eur: "€",
+      inr: "₹",
+    };
 
-  async mounted() {
-    this.getTeams();
-    return this.get();
-  }
+    async mounted() {
+      this.getTeams();
+      return this.get();
+    }
 
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/admin/coupons?first=10${
-          this.coupons.data.length
-            ? `&after=${this.coupons.data[this.coupons.data.length - 1].id}`
-            : ""
-        }`
-      );
-      this.coupons.data.push(...(data.data || []));
-      this.coupons.hasMore = data.hasMore;
-      this.coupons = data;
-    } catch (error) {}
-    this.loading = false;
-  }
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/admin/coupons?first=10${
+            this.coupons.data.length
+              ? `&after=${this.coupons.data[this.coupons.data.length - 1].id}`
+              : ""
+          }`
+        );
+        this.coupons.data.push(...(data.data || []));
+        this.coupons.hasMore = data.hasMore;
+        this.coupons = data;
+      } catch (error) {}
+      this.loading = false;
+    }
 
-  async getTeams() {
-    this.loadingTeams = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/admin/organizations?first=100${
-          this.teams.data.length
-            ? `&after=${this.teams.data[this.teams.data.length - 1].id}`
-            : ""
-        }`
-      );
-      this.teams.data.push(...(data.data || []));
-      this.teams.hasMore = data.hasMore;
-      this.teams = data;
-    } catch (error) {}
-    this.loadingTeams = false;
-  }
+    async getTeams() {
+      this.loadingTeams = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/admin/organizations?first=100${
+            this.teams.data.length
+              ? `&after=${this.teams.data[this.teams.data.length - 1].id}`
+              : ""
+          }`
+        );
+        this.teams.data.push(...(data.data || []));
+        this.teams.hasMore = data.hasMore;
+        this.teams = data;
+      } catch (error) {}
+      this.loadingTeams = false;
+    }
 
-  async add() {
-    this.loadingAdd = true;
-    try {
-      const { data } = await this.$axios.put("/admin/coupons", {
-        amount: parseInt(this.amount),
-        maxUses: this.maxUses ? parseInt(this.maxUses) : undefined,
-        teamRestrictions: this.teamRestrictions
-          ? String(this.teamRestrictions)
-          : undefined,
-        code: this.code || undefined,
-        currency: this.currency,
-        jwt: this.jwt,
-        expiresAt: this.expires ? this.expiresAt : undefined,
-        description: this.description || undefined,
+    async add() {
+      this.loadingAdd = true;
+      try {
+        const { data } = await this.$axios.put("/admin/coupons", {
+          amount: parseInt(this.amount),
+          maxUses: this.maxUses ? parseInt(this.maxUses) : undefined,
+          teamRestrictions: this.teamRestrictions
+            ? String(this.teamRestrictions)
+            : undefined,
+          code: this.code || undefined,
+          currency: this.currency,
+          jwt: this.jwt,
+          expiresAt: this.expires ? this.expiresAt : undefined,
+          description: this.description || undefined,
+        });
+        if (typeof data.added === "string") {
+          alert(data.added);
+        } else {
+          this.coupons.data.push(data.added);
+        }
+        this.code = "";
+        this.amount = "100";
+        this.maxUses = "";
+        this.teamRestrictions = null;
+        this.currency = "usd";
+        this.jwt = false;
+        this.expires = false;
+        this.hasCode = false;
+        this.description = "";
+        this.expiresAt = new Date();
+      } catch (error) {}
+      this.loadingAdd = false;
+    }
+
+    async deleteCoupon(id: number, code: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting coupon",
+        message: `Are you sure you want to delete the coupon with code <code>${code}</code>? This action is not reversible, and this coupon will stop working immediately.`,
+        confirmText: "Yes, delete coupon",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(`/admin/coupons/${id}`);
+          } catch (error) {}
+          this.coupons = { data: [] };
+          return this.get();
+        },
       });
-      if (typeof data.added === "string") {
-        alert(data.added);
-      } else {
-        this.coupons.data.push(data.added);
-      }
-      this.code = "";
-      this.amount = "100";
-      this.maxUses = "";
-      this.teamRestrictions = null;
-      this.currency = "usd";
-      this.jwt = false;
-      this.expires = false;
-      this.hasCode = false;
-      this.description = "";
-      this.expiresAt = new Date();
-    } catch (error) {}
-    this.loadingAdd = false;
-  }
+    }
 
-  async deleteCoupon(id: number, code: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting coupon",
-      message: `Are you sure you want to delete the coupon with code <code>${code}</code>? This action is not reversible, and this coupon will stop working immediately.`,
-      confirmText: "Yes, delete coupon",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(`/admin/coupons/${id}`);
-        } catch (error) {}
-        return this.get();
-      },
-    });
-  }
+    async save(data: any) {
+      this.loadingSave = true;
+      try {
+        await this.$axios.patch(`/admin/coupons/${data.id}`, {
+          currency: data.currency,
+          amount: data.amount ? parseInt(data.amount) : undefined,
+          code: data.code,
+          description: data.description,
+          maxUses: data.maxUses ? parseInt(data.maxUses) : undefined,
+          teamRestrictions: data.teamRestrictions,
+        });
+        this.removeFromOpened(data.id);
+      } catch (error) {}
+      this.loadingSave = false;
+      this.coupons = { data: [] };
+      return this.get();
+    }
 
-  async save(data: any) {
-    this.loadingSave = true;
-    try {
-      await this.$axios.patch(`/admin/coupons/${data.id}`, {
-        currency: data.currency,
-        amount: data.amount ? parseInt(data.amount) : undefined,
-        code: data.code,
-        description: data.description,
-        maxUses: data.maxUses ? parseInt(data.maxUses) : undefined,
-        teamRestrictions: data.teamRestrictions,
+    addToOpened(id: number) {
+      if (!this.opened.includes(id)) this.opened.push(id);
+    }
+
+    removeFromOpened(id: number) {
+      this.opened = this.opened.filter((i) => i !== id);
+    }
+
+    updateValue(id: number, key: string, value: any) {
+      this.coupons.data = this.coupons.data.map((i: any) => {
+        if (i.id === id) {
+          i[key] = value;
+        }
+        return i;
       });
-      this.removeFromOpened(data.id);
-    } catch (error) {}
-    this.loadingSave = false;
-    this.coupons = { data: [] };
-    return this.get();
+    }
   }
-
-  addToOpened(id: number) {
-    if (!this.opened.includes(id)) this.opened.push(id);
-  }
-
-  removeFromOpened(id: number) {
-    this.opened = this.opened.filter((i) => i !== id);
-  }
-
-  updateValue(id: number, key: string, value: any) {
-    this.coupons.data = this.coupons.data.map((i: any) => {
-      if (i.id === id) {
-        i[key] = value;
-      }
-      return i;
-    });
-  }
-}
 </script>

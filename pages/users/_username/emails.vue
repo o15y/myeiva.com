@@ -185,6 +185,7 @@
               `/users/${this.$route.params.username}/emails/${id}`
             );
           } catch (error) {}
+          this.emails = { data: [] };
           return this.get();
         },
       });

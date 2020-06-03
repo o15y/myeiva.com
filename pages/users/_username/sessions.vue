@@ -48,82 +48,83 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-const UAParser = require("ua-parser-js");
-import icon from "analytics-icons";
-import ct from "countries-and-timezones";
+  import { Vue, Component, Watch } from "vue-property-decorator";
+  const UAParser = require("ua-parser-js");
+  import icon from "analytics-icons";
+  import ct from "countries-and-timezones";
 
-@Component({
-  middleware: "authenticated",
-  layout: "users",
-})
-export default class UsersSessions extends Vue {
-  loading = false;
-  loadingMore = false;
-  sessions: any = { data: [] };
+  @Component({
+    middleware: "authenticated",
+    layout: "users",
+  })
+  export default class UsersSessions extends Vue {
+    loading = false;
+    loadingMore = false;
+    sessions: any = { data: [] };
 
-  async created() {
-    return this.get();
-  }
+    async created() {
+      return this.get();
+    }
 
-  getIcon(row: any, keyName: string) {
-    if (keyName === "CountryCode") return icon(row.countryCode);
-    const parser = new UAParser(row.userAgent);
-    return icon(parser[`get${keyName}`]?.call()?.name);
-  }
-  getCaption(row: any, keyName: string) {
-    if (keyName === "CountryCode")
-      return ["city", "region"]
-        .map((i) => row[i])
-        .filter((i) => i)
-        .join(", ");
-    const parser = new UAParser(row.userAgent);
-    return parser[`get${keyName}`]?.call()?.name;
-  }
+    getIcon(row: any, keyName: string) {
+      if (keyName === "CountryCode") return icon(row.countryCode);
+      const parser = new UAParser(row.userAgent);
+      return icon(parser[`get${keyName}`]?.call()?.name);
+    }
+    getCaption(row: any, keyName: string) {
+      if (keyName === "CountryCode")
+        return ["city", "region"]
+          .map((i) => row[i])
+          .filter((i) => i)
+          .join(", ");
+      const parser = new UAParser(row.userAgent);
+      return parser[`get${keyName}`]?.call()?.name;
+    }
 
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/users/${
-          this.$route.params.username
-        }/sessions?first=10&orderBy=id:desc${
-          this.sessions.data.length
-            ? `&after=${this.sessions.data[this.sessions.data.length - 1].id}`
-            : ""
-        }`
-      );
-      this.sessions.data.push(...(data.data || []));
-      this.sessions.hasMore = data.hasMore;
-    } catch (error) {}
-    this.loading = false;
-  }
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/users/${
+            this.$route.params.username
+          }/sessions?first=10&orderBy=id:desc${
+            this.sessions.data.length
+              ? `&after=${this.sessions.data[this.sessions.data.length - 1].id}`
+              : ""
+          }`
+        );
+        this.sessions.data.push(...(data.data || []));
+        this.sessions.hasMore = data.hasMore;
+      } catch (error) {}
+      this.loading = false;
+    }
 
-  async deleteSession(id: number) {
-    this.$buefy.dialog.confirm({
-      title: "Logging out",
-      message: `Are you sure you want to log out of this session?`,
-      confirmText: "Yes, logout",
-      cancelText: "No, don't logout",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          const { data } = await this.$axios.delete(
-            `/users/${this.$route.params.username}/sessions/${id}`
-          );
-        } catch (error) {}
-        await this.get();
-      },
-    });
+    async deleteSession(id: number) {
+      this.$buefy.dialog.confirm({
+        title: "Logging out",
+        message: `Are you sure you want to log out of this session?`,
+        confirmText: "Yes, logout",
+        cancelText: "No, don't logout",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            const { data } = await this.$axios.delete(
+              `/users/${this.$route.params.username}/sessions/${id}`
+            );
+          } catch (error) {}
+          this.sessions = { data: [] };
+          await this.get();
+        },
+      });
+    }
   }
-}
 </script>
 
 <style scoped>
-figure.image {
-  margin-right: 0.5rem;
-}
+  figure.image {
+    margin-right: 0.5rem;
+  }
 </style>
