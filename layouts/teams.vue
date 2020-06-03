@@ -38,6 +38,14 @@
               </b-menu-item>
             </b-menu-list>
           </b-menu>
+          <b-button
+            style="margin-top: 1rem"
+            tag="nuxt-link"
+            :to="`/users/${((user || {}).details || {}).username}/profile`"
+            icon-left="face-profile-woman"
+          >
+            User settings
+          </b-button>
         </aside>
         <main class="column is-three-quarters card">
           <div class="card-content">
@@ -52,14 +60,20 @@
 
 <script lang="ts">
   import Vue from "vue";
+  import { mapGetters } from "vuex";
+  import { User } from "../store/auth";
   import Component from "vue-class-component";
   import Navbar from "@/components/layout/Navbar.vue";
   import Footer from "@/components/layout/Footer.vue";
 
   @Component({
     components: { Navbar, Footer },
+    computed: mapGetters({
+      user: "auth/user",
+    }),
   })
   export default class Default extends Vue {
+    user!: User;
     items = [
       {
         label: "Meetings",
