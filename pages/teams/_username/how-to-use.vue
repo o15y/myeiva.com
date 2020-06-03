@@ -10,7 +10,7 @@
     <h2 class="is-size-5">Your assistant's email</h2>
     <p style="margin: 1rem 0">
       <code style="font-size: 110%" class="assistant-email">
-        meet-{{ $route.params.username }}@myeiva.com
+        meet-{{ $route.params.username }}@eiva.o15y.com
       </code>
     </p>
     <div><b-button icon-left="content-copy" @click="copy">Copy</b-button></div>
@@ -21,7 +21,9 @@
     <ol style="margin: 0 0 1rem 1rem">
       <li>Write an email to whoever you want to set an appointment with</li>
       <li>
-        Add your assistant in CC (meet-{{ $route.params.username }}@myeiva.com)
+        Add your assistant in CC (meet-{{
+          $route.params.username
+        }}@eiva.o15y.com)
       </li>
       <li>Write in natural language, like the following example.</li>
     </ol>
@@ -32,7 +34,7 @@
       <div>
         <strong>CC: </strong> Your Assistant (meet-{{
           $route.params.username
-        }}@myeiva.com)
+        }}@eiva.o15y.com)
       </div>
       <div><strong>Subject: </strong> Appointment</div>
       <div><strong>Message: </strong></div>

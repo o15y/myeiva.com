@@ -9,7 +9,7 @@
         label="Email suffix"
         :message="
           `Your assistant email will be meet-${team.username ||
-            'your_username'}@myeiva.com`
+            'your_username'}@eiva.o15y.com`
         "
       >
         <b-input type="text" v-model="team.username" required />
