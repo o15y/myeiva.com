@@ -57,13 +57,23 @@
                   {{ new Date(meeting.confirmedTime).toLocaleString() }}
                 </div>
                 <div>
-                  {{ meeting.duration }} minute {{ meeting.meetingType }}
+                  {{ meeting.duration }}-minute
+                  {{
+                    ((meeting.location || {}).type || "")
+                      .replace("_", " ")
+                      .toLowerCase()
+                  }}
                 </div>
               </div>
               <div v-else>
                 <div><em>Awaiting confirmation</em></div>
                 <div>
-                  {{ meeting.duration }} minute {{ meeting.meetingType }}
+                  {{ meeting.duration }}-minute
+                  {{
+                    ((meeting.location || {}).type || "")
+                      .replace("_", " ")
+                      .toLowerCase()
+                  }}
                 </div>
               </div>
             </div>
@@ -154,7 +164,7 @@
         const { data } = await this.$axios.get(
           `/organizations/${
             this.$route.params.username
-          }/meetings?first=10&orderBy=id:desc${
+          }/meetings?first=10&orderBy=id:desc&include=location${
             this.meetings.data.length
               ? `&after=${this.meetings.data[this.meetings.data.length - 1].id}`
               : ""
