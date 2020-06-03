@@ -59,7 +59,7 @@
       >
         <b-select v-model="primaryEmailId" expanded>
           <option
-            v-for="(email, i) in emails.data"
+            v-for="(email, i) in verifiedEmails"
             :key="`e${email.id}${i}`"
             :value="email.id"
           >
@@ -100,94 +100,102 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
+  import { Vue, Component, Watch } from "vue-property-decorator";
 
-@Component({
-  middleware: "authenticated",
-  layout: "users",
-})
-export default class UsersEmails extends Vue {
-  newEmail = "";
-  loading = false;
-  loadingAdd = false;
-  loadingSave = false;
-  primaryEmailId = 0;
-  notificationEmails = "ACCOUNT";
-  emails: any = { data: [] };
+  @Component({
+    middleware: "authenticated",
+    layout: "users",
+  })
+  export default class UsersEmails extends Vue {
+    newEmail = "";
+    loading = false;
+    loadingAdd = false;
+    loadingSave = false;
+    primaryEmailId = 0;
+    notificationEmails = "ACCOUNT";
+    emails: any = { data: [] };
 
-  async created() {
-    return this.get();
-  }
+    async created() {
+      return this.get();
+    }
 
-  async get() {
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.get(
-        `/users/${this.$route.params.username}/emails?first=10${
-          this.emails.data.length
-            ? `&after=${this.emails.data[this.emails.data.length - 1].id}`
-            : ""
-        }`
-      );
-      this.emails.data.push(...(data.data || []));
-      this.emails.hasMore = data.hasMore;
-      this.emails = data;
-    } catch (error) {}
-    try {
-      const user = await this.$axios.get(
-        `/users/${this.$route.params.username}`
-      );
-      this.notificationEmails = user.data.notificationEmails;
-      this.primaryEmailId = user.data.primaryEmail;
-    } catch (error) {}
-    this.loading = false;
-  }
+    async get() {
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.get(
+          `/users/${this.$route.params.username}/emails?first=10${
+            this.emails.data.length
+              ? `&after=${this.emails.data[this.emails.data.length - 1].id}`
+              : ""
+          }`
+        );
+        this.emails.data.push(...(data.data || []));
+        this.emails.hasMore = data.hasMore;
+        this.emails = data;
+      } catch (error) {}
+      try {
+        const user = await this.$axios.get(
+          `/users/${this.$route.params.username}`
+        );
+        this.notificationEmails = user.data.notificationEmails;
+        this.primaryEmailId = user.data.primaryEmail;
+      } catch (error) {}
+      this.loading = false;
+    }
 
-  async add() {
-    this.loadingAdd = true;
-    try {
-      const { data } = await this.$axios.put(
-        `/users/${this.$route.params.username}/emails`,
-        {
-          email: this.newEmail,
-        }
-      );
-      this.emails.data.push(data.added);
-      this.newEmail = "";
-    } catch (error) {}
-    this.loadingAdd = false;
-  }
+    async add() {
+      this.loadingAdd = true;
+      try {
+        const { data } = await this.$axios.put(
+          `/users/${this.$route.params.username}/emails`,
+          {
+            email: this.newEmail,
+          }
+        );
+        this.emails.data.push(data.added);
+        this.newEmail = "";
+      } catch (error) {}
+      this.loadingAdd = false;
+    }
 
-  async save() {
-    this.loadingSave = true;
-    try {
-      await this.$axios.patch(`/users/${this.$route.params.username}`, {
-        primaryEmail: this.primaryEmailId,
-        notificationEmails: this.notificationEmails,
+    async save() {
+      this.loadingSave = true;
+      try {
+        await this.$axios.patch(`/users/${this.$route.params.username}`, {
+          primaryEmail: this.primaryEmailId,
+          notificationEmails: this.notificationEmails,
+        });
+      } catch (error) {}
+      this.loadingSave = false;
+    }
+
+    async deleteEmail(id: number, email: string) {
+      this.$buefy.dialog.confirm({
+        title: "Deleting email",
+        message: `Are you sure you want to delete your email <strong>${email}</strong>? This action is not reversible, and you'll have to verify this email again if you change your mind.`,
+        confirmText: "Yes, delete email",
+        cancelText: "No, don't delete",
+        type: "is-danger",
+        hasIcon: true,
+        trapFocus: true,
+        onConfirm: async () => {
+          this.loading = true;
+          try {
+            await this.$axios.delete(
+              `/users/${this.$route.params.username}/emails/${id}`
+            );
+          } catch (error) {}
+          return this.get();
+        },
       });
-    } catch (error) {}
-    this.loadingSave = false;
-  }
+    }
 
-  async deleteEmail(id: number, email: string) {
-    this.$buefy.dialog.confirm({
-      title: "Deleting email",
-      message: `Are you sure you want to delete your email <strong>${email}</strong>? This action is not reversible, and you'll have to verify this email again if you change your mind.`,
-      confirmText: "Yes, delete email",
-      cancelText: "No, don't delete",
-      type: "is-danger",
-      hasIcon: true,
-      trapFocus: true,
-      onConfirm: async () => {
-        this.loading = true;
-        try {
-          await this.$axios.delete(
-            `/users/${this.$route.params.username}/emails/${id}`
-          );
-        } catch (error) {}
-        return this.get();
-      },
-    });
+    get verifiedEmails() {
+      try {
+        if (this.emails && this.emails.data)
+          return this.emails.data.filter((email: any) => email.isVerified);
+      } catch (error) {}
+      return [];
+    }
   }
-}
 </script>
