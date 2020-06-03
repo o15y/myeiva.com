@@ -36,7 +36,6 @@
   import { mapGetters } from "vuex";
 
   @Component({
-    middleware: "unauthenticated",
     layout: "auth",
     computed: mapGetters({
       isAuthenticated: "auth/isAuthenticated",
