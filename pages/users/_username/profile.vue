@@ -159,7 +159,7 @@
       <div style="margin-bottom: 0.5rem; font-weight: bold;">
         Webapp color scheme
       </div>
-      <b-field>
+      <!-- <b-field>
         <b-radio
           name="radioColorScheme"
           native-value="NO_PREFERENCE"
@@ -181,7 +181,7 @@
         >
           Dark theme
         </b-radio>
-      </b-field>
+      </b-field> -->
       <div style="margin-top: 1.5rem">
         <b-button type="is-primary" native-type="submit" size="is-medium">
           Update settings
@@ -193,110 +193,111 @@
 </template>
 
 <script lang="ts">
-import ct from "countries-and-timezones";
-import { mapGetters } from "vuex";
-import { Vue, Component, Watch } from "vue-property-decorator";
+  import ct from "countries-and-timezones";
+  import { mapGetters } from "vuex";
+  import { Vue, Component, Watch } from "vue-property-decorator";
 
-const countries = ct.getAllCountries();
+  const countries = ct.getAllCountries();
 
-@Component({
-  middleware: "authenticated",
-  layout: "users",
-})
-export default class UsersProfile extends Vue {
-  loading = false;
-  user: any = {};
+  @Component({
+    middleware: "authenticated",
+    layout: "users",
+  })
+  export default class UsersProfile extends Vue {
+    loading = false;
+    user: any = {};
 
-  countrySearchQuery = "United States";
-  languages = {
-    "en-us": "English (United States)",
-    "en-in": "English (India)",
-  };
-  filteredTimezonesArray = ct.getTimezonesForCountry("US").map((i) => i.name);
+    countrySearchQuery = "United States";
+    languages = {
+      "en-us": "English (United States)",
+      "en-in": "English (India)",
+    };
+    filteredTimezonesArray = ct.getTimezonesForCountry("US").map((i) => i.name);
 
-  async created() {
-    return this.get();
-  }
+    async created() {
+      return this.get();
+    }
 
-  async get() {
-    this.loading = true;
-    try {
-      const { data }: { data: any } = await this.$axios.get(
-        `/users/${this.$route.params.username}`
+    async get() {
+      this.loading = true;
+      try {
+        const { data }: { data: any } = await this.$axios.get(
+          `/users/${this.$route.params.username}`
+        );
+        this.user = data;
+      } catch (error) {}
+      this.loading = false;
+
+      const country = ct.getCountry(
+        (this.user.countryCode ?? "US").toLocaleUpperCase()
       );
-      this.user = data;
-    } catch (error) {}
-    this.loading = false;
+      if (country) this.countrySearchQuery = country.name;
+    }
 
-    const country = ct.getCountry(
-      (this.user.countryCode ?? "US").toLocaleUpperCase()
-    );
-    if (country) this.countrySearchQuery = country.name;
-  }
+    @Watch("selectedCountryCode")
+    onCountryCodeChanged(value: string) {
+      console.log(value);
+      const countryCodes = Object.entries(countries).filter(
+        (i) => i[1].name === value
+      );
+      if (countryCodes.length)
+        this.user.countryCode = countryCodes[0][0].toLocaleLowerCase();
+    }
 
-  @Watch("selectedCountryCode")
-  onCountryCodeChanged(value: string) {
-    console.log(value);
-    const countryCodes = Object.entries(countries).filter(
-      (i) => i[1].name === value
-    );
-    if (countryCodes.length)
-      this.user.countryCode = countryCodes[0][0].toLocaleLowerCase();
-  }
+    @Watch("countrySearchQuery")
+    onCountrySearchQueryChanged(value: string) {
+      const filteredCountries = Object.entries(countries).filter(
+        (i) => i[1].name === value
+      );
+      if (filteredCountries.length)
+        this.user.countryCode = filteredCountries[0][0].toLocaleLowerCase();
+      this.filteredTimezonesArray = (
+        ct.getTimezonesForCountry(this.user.countryCode.toLocaleUpperCase()) ||
+        []
+      ).map((i) => i.name);
+      if (
+        !this.filteredTimezonesArray.includes(this.user.timezone) &&
+        this.filteredTimezonesArray.length
+      ) {
+        this.user.timezone = this.filteredTimezonesArray[0];
+      }
+    }
 
-  @Watch("countrySearchQuery")
-  onCountrySearchQueryChanged(value: string) {
-    const filteredCountries = Object.entries(countries).filter(
-      (i) => i[1].name === value
-    );
-    if (filteredCountries.length)
-      this.user.countryCode = filteredCountries[0][0].toLocaleLowerCase();
-    this.filteredTimezonesArray = (
-      ct.getTimezonesForCountry(this.user.countryCode.toLocaleUpperCase()) || []
-    ).map((i) => i.name);
-    if (
-      !this.filteredTimezonesArray.includes(this.user.timezone) &&
-      this.filteredTimezonesArray.length
-    ) {
-      this.user.timezone = this.filteredTimezonesArray[0];
+    get filteredCountriesArray() {
+      return Object.values(countries)
+        .filter((i) =>
+          i.name
+            .toLocaleLowerCase()
+            .includes(this.countrySearchQuery.toLocaleLowerCase())
+        )
+        .map((i) => i.name);
+    }
+
+    async save() {
+      const user = { ...this.user };
+      [
+        "createdAt",
+        "id",
+        "primaryEmail",
+        "role",
+        "twoFactorEnabled",
+        "twoFactorSecret",
+        "updatedAt",
+      ].forEach((i) => delete user[i]);
+      this.loading = true;
+      try {
+        const { data } = await this.$axios.patch(
+          `/users/${this.$route.params.username}`,
+          user
+        );
+        this.user = data.updated;
+      } catch (error) {}
+      this.loading = false;
+
+      const country = ct.getCountry(
+        (this.user.countryCode ?? "US").toLocaleUpperCase()
+      );
+      if (country) this.countrySearchQuery = country.name;
     }
   }
-
-  get filteredCountriesArray() {
-    return Object.values(countries)
-      .filter((i) =>
-        i.name
-          .toLocaleLowerCase()
-          .includes(this.countrySearchQuery.toLocaleLowerCase())
-      )
-      .map((i) => i.name);
-  }
-
-  async save() {
-    const user = { ...this.user };
-    [
-      "createdAt",
-      "id",
-      "primaryEmail",
-      "role",
-      "twoFactorEnabled",
-      "twoFactorSecret",
-      "updatedAt",
-    ].forEach((i) => delete user[i]);
-    this.loading = true;
-    try {
-      const { data } = await this.$axios.patch(
-        `/users/${this.$route.params.username}`,
-        user
-      );
-      this.user = data.updated;
-    } catch (error) {}
-    this.loading = false;
-
-    const country = ct.getCountry(
-      (this.user.countryCode ?? "US").toLocaleUpperCase()
-    );
-    if (country) this.countrySearchQuery = country.name;
-  }
-}
 </script>
