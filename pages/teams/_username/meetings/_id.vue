@@ -17,7 +17,7 @@
           "
         />
       </figure>
-      <figure class="image avatar is-64x64">
+      <figure class="image avatar is-64x64" v-if="guestPicture || guestName">
         <img
           class="is-rounded"
           :src="
@@ -31,7 +31,7 @@
       Meeting with {{ guestName }}
     </h1>
     <h1 class="is-size-4" style="margin-bottom: 1rem" v-else>Meeting</h1>
-    <table class="table">
+    <table class="table" v-if="meeting.id">
       <tbody>
         <tr>
           <td>Status</td>
@@ -60,7 +60,13 @@
         </tr>
         <tr>
           <td>Meeting type</td>
-          <td>{{ (meeting.location || {}).type }}</td>
+          <td style="text-transform: capitalize">
+            {{
+              ((meeting.location || {}).type || "")
+                .replace("_", " ")
+                .toLowerCase()
+            }}
+          </td>
         </tr>
         <tr>
           <td>Location</td>
@@ -219,46 +225,50 @@
     >
       <template slot-scope="props">
         <b-table-column sortable field="emailType" label="Email type">
-          <b-tooltip label="Error" v-if="props.row.status === 'ERROR'">
-            <b-icon icon="alert" type="is-danger" />
-          </b-tooltip>
-          <b-tooltip
-            label="Processed"
-            v-if="
-              props.row.emailType === 'INCOMING' &&
-                props.row.status === 'SUCCESS'
-            "
-          >
-            <b-icon icon="check-circle" type="is-success" />
-          </b-tooltip>
-          <b-tooltip
-            label="Pending"
-            v-if="
-              props.row.emailType === 'INCOMING' &&
-                props.row.status === 'PENDING'
-            "
-          >
-            <b-icon icon="clock" type="is-warning" />
-          </b-tooltip>
-          <b-tooltip
-            label="Read"
-            v-if="
-              props.row.emailType === 'OUTGOING' &&
-                props.row.status === 'SUCCESS'
-            "
-          >
-            <b-icon icon="check-circle" type="is-info" />
-          </b-tooltip>
-          <b-tooltip
-            label="Sent"
-            v-if="
-              props.row.emailType === 'OUTGOING' &&
-                props.row.status === 'PENDING'
-            "
-          >
-            <b-icon icon="check-circle" type="is-success" />
-          </b-tooltip>
-          <span>{{ props.row.emailType }}</span>
+          <span class="is-flex">
+            <b-tooltip label="Error" v-if="props.row.status === 'ERROR'">
+              <b-icon icon="alert" type="is-danger" />
+            </b-tooltip>
+            <b-tooltip
+              label="Processed"
+              v-if="
+                props.row.emailType === 'INCOMING' &&
+                  props.row.status === 'SUCCESS'
+              "
+            >
+              <b-icon icon="check-circle" type="is-success" />
+            </b-tooltip>
+            <b-tooltip
+              label="Pending"
+              v-if="
+                props.row.emailType === 'INCOMING' &&
+                  props.row.status === 'PENDING'
+              "
+            >
+              <b-icon icon="clock" type="is-warning" />
+            </b-tooltip>
+            <b-tooltip
+              label="Read"
+              v-if="
+                props.row.emailType === 'OUTGOING' &&
+                  props.row.status === 'SUCCESS'
+              "
+            >
+              <b-icon icon="check-circle" type="is-info" />
+            </b-tooltip>
+            <b-tooltip
+              label="Sent"
+              v-if="
+                props.row.emailType === 'OUTGOING' &&
+                  props.row.status === 'PENDING'
+              "
+            >
+              <b-icon icon="check-circle" type="is-success" />
+            </b-tooltip>
+            <span style="margin-left: 0.5rem; text-transform: capitalize">
+              {{ (props.row.emailType || "").toLowerCase() }}
+            </span>
+          </span>
         </b-table-column>
         <b-table-column sortable field="createdAt" label="Date">
           {{ new Date(props.row.createdAt).toLocaleString() }}
@@ -442,5 +452,11 @@
   }
   .avatar {
     margin: 0 -10px;
+  }
+  table {
+    width: 100%;
+    td:first-child {
+      font-weight: bold;
+    }
   }
 </style>
