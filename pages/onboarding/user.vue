@@ -214,6 +214,8 @@
 
 <script lang="ts">
   import { Vue, Component, Watch } from "vue-property-decorator";
+  import { mapGetters } from "vuex";
+  import { User } from "../../store/auth";
   import axios from "axios";
   import ct from "countries-and-timezones";
 
@@ -221,8 +223,12 @@
 
   @Component({
     middleware: "authenticated",
+    computed: mapGetters({
+      user: "auth/user",
+    }),
   })
   export default class OnboardingUser extends Vue {
+    user!: User;
     userName = "";
     userUsername = "";
     userCountryCode = "us";
@@ -288,6 +294,13 @@
         this.userCountryCode = countryCodes[0][0].toLocaleLowerCase();
     }
 
+    get username() {
+      try {
+        return ((this.user ?? {}).details ?? {}).username ?? "me";
+      } catch (error) {}
+      return "me";
+    }
+
     get filteredCountriesArray() {
       return Object.values(countries)
         .filter((i) =>
@@ -326,8 +339,9 @@
               name: this.userName,
               assistantName: this.teamName,
             });
-            const memberships = (await this.$axios.get("/users/me/memberships"))
-              .data;
+            const memberships = (
+              await this.$axios.get(`/users/${this.username}/memberships`)
+            ).data;
             this.$store.commit("auth/setUserDetails", { memberships });
             return this.$router.push(`/teams/${data.added.username}`);
           } catch (error) {
@@ -336,7 +350,7 @@
         } else {
           try {
             await this.$axios.patch(
-              "/users/me",
+              `/users/${this.username}`,
               this.value === 0
                 ? {
                     name: this.userName,
