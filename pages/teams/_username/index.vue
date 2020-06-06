@@ -50,6 +50,9 @@
                   </p>
                 </div>
               </div>
+              <div v-if="!(meeting.guests || []).length">
+                <em>No guests found</em>
+              </div>
             </div>
             <div class="column has-text-right">
               <div v-if="meeting.confirmedTime">
@@ -172,13 +175,15 @@
         );
         this.meetings.data.push(
           ...(data.data.map((meeting: any) => {
-            meeting.guests = JSON.parse(meeting.guests || []);
+            if (meeting.guests)
+              meeting.guests = JSON.parse(meeting.guests || []);
             meeting.guests = meeting.guests.map((guest: any) => {
               guest.person = guest.person || {};
               guest.company = guest.company || {};
               return guest;
             });
-            meeting.proposedTimes = JSON.parse(meeting.proposedTimes || []);
+            if (meeting.proposedTimes)
+              meeting.proposedTimes = JSON.parse(meeting.proposedTimes || []);
             return meeting;
           }) || [])
         );
