@@ -27,7 +27,7 @@
           <b-button
             type="is-primary"
             tag="nuxt-link"
-            :to="`/users/${props.row.username}`"
+            :to="`/users/${props.row.username}/profile`"
           >
             Go to user
           </b-button>
