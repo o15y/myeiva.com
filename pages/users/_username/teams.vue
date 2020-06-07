@@ -56,7 +56,7 @@
     </div>
     <h2 class="is-size-5" style="margin-top: 1rem">Create another assistant</h2>
     <form @submit.prevent="add" style="margin: 0.5rem 0 1.5rem">
-      <b-field label="Team name">
+      <b-field label="Assistant name">
         <b-input type="team" v-model="newTeam" required />
       </b-field>
       <b-button type="is-primary" native-type="submit" :loading="loadingAdd">
@@ -103,7 +103,7 @@
       this.loadingAdd = true;
       try {
         const { data } = await this.$axios.put(`/organizations`, {
-          name: this.newTeam,
+          assistantName: this.newTeam,
         });
         this.newTeam = "";
       } catch (error) {}
