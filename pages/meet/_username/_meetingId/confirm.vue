@@ -14,7 +14,7 @@
       </p>
     </div>
   </div>
-  <div v-else>
+  <div v-else-if="!loading">
     <div style="margin-bottom: 1.5rem; display: flex; justify-content: center">
       <figure
         class="image avatar is-64x64"
@@ -196,12 +196,25 @@
     async mounted() {
       if (typeof this.$route.query.token !== "string")
         return this.$router.replace("/");
-      this.token = decode<TokenResult>(this.$route.query.token);
-      this.guestTimezone = this.token.timezone;
-      this.guestName = this.token.guests[0].name;
-      this.guestEmail = this.token.guests[0].address;
-      this.guestPicture = this.token.guests[0].person?.avatar ?? "";
-      this.selectedDatetime = new Date(this.token.datetime);
+      if (this.$route.query.token.startsWith("short-token")) {
+        this.loading = true;
+        const fullToken = (
+          await this.$axios.get(
+            `/api/full-token/${encodeURIComponent(this.$route.query.token)}`
+          )
+        ).data;
+        if ((fullToken ?? "").startsWith("short-token")) return;
+        this.token = decode<TokenResult>(fullToken);
+      } else {
+        this.token = decode<TokenResult>(this.$route.query.token);
+      }
+      if (this.token) {
+        this.guestTimezone = this.token.timezone;
+        this.guestName = this.token.guests[0].name;
+        this.guestEmail = this.token.guests[0].address;
+        this.guestPicture = this.token.guests[0].person?.avatar ?? "";
+        this.selectedDatetime = new Date(this.token.datetime);
+      }
       this.loading = true;
       try {
         const result = (
