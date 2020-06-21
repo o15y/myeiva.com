@@ -250,7 +250,7 @@
               this.schedulingTimeEnd.getHours()
             )}:${twoDigitTime(this.schedulingTimeEnd.getMinutes())}:00`,
             schedulingPadding: this.team.schedulingPadding,
-            customCalendarUrl: this.team.customCalendarUrl,
+            customCalendarUrl: this.team.customCalendarUrl ?? "",
             schedulingDuration: this.team.schedulingDuration,
             schedulingType: this.team.schedulingType,
           }
